@@ -18,6 +18,7 @@ export function EditTurmaForm({ turma }: { turma: TurmaDTO }) {
       ? formatSaoPauloDateTimeLocalInput(turma.endsAt)
       : "",
     location: turma.location ?? "",
+    whatsappGroupUrl: turma.whatsappGroupUrl ?? "",
     status: turma.status,
   };
 

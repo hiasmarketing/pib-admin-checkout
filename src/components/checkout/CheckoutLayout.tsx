@@ -1,69 +1,51 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import DestinyLogo from "@/components/brand/DestinyLogo";
-import LanguageToggle from "@/components/checkout/LanguageToggle";
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import PibLogo from "@/components/brand/PibLogo";
 import { SellerAttributionBar } from "./SellerAttributionBar";
-
-const CHECKOUT_BACKGROUND_IMAGE_URL =
-  "/images/checkout-crowd-bg.jpg";
 
 export default function CheckoutLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const [sellerBarVisible, setSellerBarVisible] = useState(false);
-
   return (
-    <div className="relative isolate min-h-screen bg-black flex flex-col">
+    <div className="relative min-h-screen bg-white flex flex-col text-[var(--color-pib-label,#2b3674)]">
       <Suspense fallback={null}>
-        <SellerAttributionBar onVisibleChange={setSellerBarVisible} />
-      </Suspense>
-      <Suspense fallback={null}>
-        <LanguageToggle
-          positionClassName={
-            sellerBarVisible
-              ? "right-4 top-16 md:right-8 md:top-16"
-              : "right-4 top-4 md:right-8 md:top-8"
-          }
-        />
+        <SellerAttributionBar />
       </Suspense>
 
-      {/* Background image */}
-      <div className="fixed inset-0 z-0 overflow-hidden" data-checkout-background>
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 grayscale"
-          style={{ backgroundImage: `url(${CHECKOUT_BACKGROUND_IMAGE_URL})` }}
-        />
-        {/* Top gradient */}
-        <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-black to-transparent" />
-        {/* Bottom gradient */}
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black to-transparent" />
+      <div className="flex-1 w-full mx-auto max-w-[1920px] px-6 md:px-16 lg:px-24 py-10 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center lg:items-start">
+          {/* Logo column — visible só desktop, vertical centered */}
+          <div className="hidden lg:flex lg:sticky lg:top-24 lg:justify-center lg:items-center lg:min-h-[600px]">
+            <PibLogo size="lg" priority />
+          </div>
+
+          {/* Mobile/tablet logo header */}
+          <div className="flex lg:hidden justify-center mb-4">
+            <PibLogo size="md" priority />
+          </div>
+
+          {/* Form column */}
+          <main className="w-full max-w-[860px] mx-auto lg:mx-0">{children}</main>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
-        <header className="relative flex justify-center pt-10 pb-6">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="absolute left-4 top-1/2 -translate-y-1/2 flex cursor-pointer items-center gap-1 text-white/70 font-inter text-sm font-medium hover:text-white transition-colors md:left-8"
-          >
-            ← Voltar
-          </button>
-          <DestinyLogo priority className="h-auto w-[135px]" />
-        </header>
-
-        {/* Page content */}
-        <main className="flex-1 w-full max-w-sm mx-auto px-4 md:max-w-xl pb-12">
-          {children}
-        </main>
-      </div>
+      <footer className="w-full border-t border-[var(--color-pib-border,#e0e5f2)] py-6 px-6 md:px-16 lg:px-24">
+        <div className="mx-auto max-w-[1920px] flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
+          <p className="text-xs md:text-sm text-[var(--color-pib-muted,#a3aed0)] font-medium">
+            © 2026. All Rights Reserved. Made by{" "}
+            <span className="font-bold">PIB · Faria e Castro</span>
+          </p>
+          <nav className="flex flex-wrap gap-4 md:gap-6 text-xs md:text-sm font-semibold text-[var(--color-pib-primary,#12372a)]">
+            <a href="#" className="hover:underline">Instructions</a>
+            <a href="#" className="hover:underline">License</a>
+            <a href="#" className="hover:underline">Terms of Use</a>
+            <a href="#" className="hover:underline">Privacy</a>
+          </nav>
+        </div>
+      </footer>
     </div>
   );
 }

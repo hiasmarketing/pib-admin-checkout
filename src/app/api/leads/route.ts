@@ -1,12 +1,9 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { enqueuePipedriveSyncJob } from "@/lib/pipedrive/jobs";
 import { resolveSeller } from "@/lib/catalog/sellers";
 import {
   resolveSellerTrackingIdentifier,
   type TrackingData,
 } from "@/lib/tracking";
-
-const PIPEDRIVE_LEAD_DELAY_MS = 15 * 60 * 1000;
 
 interface LeadPayload {
   name?: unknown;
@@ -111,18 +108,6 @@ export async function POST(request: Request) {
     if (error) {
       console.error("Failed to create lead", error);
       return jsonError("Não foi possível salvar seus dados agora.", 500);
-    }
-
-    try {
-      await enqueuePipedriveSyncJob({
-        type: "lead.created",
-        aggregateType: "lead",
-        aggregateId: data.id,
-        payload: { source: "formulario" },
-        nextAttemptAt: new Date(Date.now() + PIPEDRIVE_LEAD_DELAY_MS),
-      });
-    } catch (err) {
-      console.error("Failed to enqueue Pipedrive lead sync", err);
     }
 
     return Response.json({ leadId: data.id });

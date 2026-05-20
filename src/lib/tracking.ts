@@ -23,8 +23,8 @@ export interface CatalogSelectionData {
   sellerSlug?: string | null;
 }
 
-const STORAGE_KEY = "destiny_tracking";
-const CATALOG_SELECTION_KEY = "destiny_catalog_selection";
+const STORAGE_KEY = "pib_tracking";
+const CATALOG_SELECTION_KEY = "pib_catalog_selection";
 const SELLER_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function cleanText(value: string | null | undefined): string | null {

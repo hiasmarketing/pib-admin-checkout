@@ -11,6 +11,7 @@ interface TurmaFormProps {
     startsAt: string;
     endsAt: string;
     location: string;
+    whatsappGroupUrl: string;
     status: string;
   };
   action: (data: FormData) => Promise<{ error?: string; fieldError?: { field: string; message: string }; success?: boolean } | void>;
@@ -87,6 +88,22 @@ export function TurmaForm({ defaultValues, action, submitLabel = "Salvar" }: Tur
       <div>
         <label htmlFor="location" style={LABEL_STYLE}>Local</label>
         <input id="location" name="location" defaultValue={defaultValues?.location} style={INPUT_STYLE} placeholder="ex: São Paulo, SP" />
+      </div>
+
+      <div>
+        <label htmlFor="whatsappGroupUrl" style={LABEL_STYLE}>Link do grupo WhatsApp</label>
+        <input
+          id="whatsappGroupUrl"
+          name="whatsappGroupUrl"
+          type="url"
+          defaultValue={defaultValues?.whatsappGroupUrl}
+          style={INPUT_STYLE}
+          placeholder="https://chat.whatsapp.com/..."
+        />
+        <p className="text-xs mt-1" style={{ color: "var(--admin-muted)" }}>
+          Exibido para o aluno após compra aprovada. Use link de convite do grupo WhatsApp.
+        </p>
+        {fieldErrorFor("whatsappGroupUrl") && <p className="text-xs mt-1" style={{ color: "var(--admin-danger)" }}>{fieldErrorFor("whatsappGroupUrl")}</p>}
       </div>
 
       <div>

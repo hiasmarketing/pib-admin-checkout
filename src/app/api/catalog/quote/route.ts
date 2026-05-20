@@ -5,7 +5,6 @@ import {
   type CatalogPricingResult,
 } from "@/lib/catalog/resolve";
 import { applyInstallmentInterest } from "@/lib/catalog/installments";
-import { getUsdBrlRate } from "@/lib/fx/exchange-rate";
 import type { CatalogSelection } from "@/lib/catalog/types";
 
 interface QuoteRequestBody {
@@ -27,18 +26,15 @@ function formatBrl(cents: number): string {
 
 function buildInstallmentLabel(params: {
   installments: number;
-  chargedAmountCents: number;
   totalCents: number;
   perInstallmentCents: number;
   interestRatePct: number | null;
 }): string {
-  const base = `${params.installments}x de ${formatBrl(
-    params.perInstallmentCents
-  )}`;
+  const base = `${params.installments}x de ${formatBrl(params.perInstallmentCents)}`;
 
   if (params.installments === 1) return base;
 
-  if (params.interestRatePct !== null && params.totalCents !== params.chargedAmountCents) {
+  if (params.interestRatePct !== null && params.interestRatePct > 0) {
     return `${base} (total ${formatBrl(params.totalCents)})`;
   }
 
@@ -97,18 +93,12 @@ export async function POST(request: Request) {
       coupon,
     });
 
-    const exchangeRate =
-      pricing.currency === "usd" ? await getUsdBrlRate() : null;
-    const chargedAmountCents = exchangeRate
-      ? Math.ceil(pricing.totalAmountCents * exchangeRate)
-      : pricing.totalAmountCents;
-    const chargedCurrency = "brl" as const;
     const installmentBreakdown = resolved.product.installmentOptions.map(
       (installments) => {
         const interestRatePct =
           resolved.product.installmentRates[String(installments)] ?? null;
         const result = applyInstallmentInterest(
-          chargedAmountCents,
+          pricing.totalAmountCents,
           installments,
           interestRatePct
         );
@@ -120,7 +110,6 @@ export async function POST(request: Request) {
           interestRatePct: result.interestRatePct,
           label: buildInstallmentLabel({
             installments,
-            chargedAmountCents,
             totalCents: result.totalCents,
             perInstallmentCents: result.perInstallmentCents,
             interestRatePct: result.interestRatePct,
@@ -143,9 +132,6 @@ export async function POST(request: Request) {
       },
       pricing: {
         ...pricing,
-        chargedAmountCents,
-        chargedCurrency,
-        exchangeRate,
         installmentBreakdown,
       },
       coupon: couponCode
@@ -156,7 +142,6 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erro ao calcular cotação.";
-    const status = message.includes("cotação do dólar") ? 503 : 400;
-    return Response.json({ error: message }, { status });
+    return Response.json({ error: message }, { status: 400 });
   }
 }

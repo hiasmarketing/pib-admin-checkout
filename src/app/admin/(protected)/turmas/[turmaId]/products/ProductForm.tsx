@@ -42,12 +42,10 @@ const LABEL_STYLE = {
   color: "var(--admin-muted)",
 } as const;
 
-function formatCurrency(cents: number, currency: string): string {
-  const normalizedCurrency = currency === "usd" ? "USD" : "BRL";
-
-  return new Intl.NumberFormat(normalizedCurrency === "USD" ? "en-US" : "pt-BR", {
+function formatCurrency(cents: number): string {
+  return new Intl.NumberFormat("pt-BR", {
     style: "currency",
-    currency: normalizedCurrency,
+    currency: "BRL",
   }).format(cents / 100);
 }
 
@@ -96,7 +94,6 @@ export function ProductForm({ turmaId, defaultValues, action, submitLabel = "Sal
   const [unitAmountCents, setUnitAmountCents] = useState(
     defaultValues?.unitAmountCents ? String(defaultValues.unitAmountCents) : ""
   );
-  const [currency, setCurrency] = useState(defaultValues?.currency ?? "brl");
   const [installments, setInstallments] = useState<number[]>(
     defaultValues?.installmentOptions ?? [1]
   );
@@ -111,22 +108,13 @@ export function ProductForm({ turmaId, defaultValues, action, submitLabel = "Sal
   const allPaymentMethods = [
     { value: "card", label: "Cartão" },
     { value: "pix", label: "Pix" },
-    { value: "klarna", label: "Klarna" },
-    { value: "afterpay_clearpay", label: "Afterpay/Clearpay" },
   ];
-  const selectedCheckoutCurrencies =
-    currency === "usd" ? ["brl", "usd"] : ["brl"];
-  const pricePlaceholder =
-    currency === "usd" ? "ex: 99700 = US$997.00" : "ex: 149700 = R$1.497,00";
+  const pricePlaceholder = "ex: 149700 = R$1.497,00";
 
   function toggleInstallment(n: number) {
     setInstallments((prev) =>
       prev.includes(n) ? prev.filter((i) => i !== n) : [...prev, n].sort((a, b) => a - b)
     );
-  }
-
-  function chooseCheckoutCurrency(nextCurrency: "brl" | "usd") {
-    setCurrency(nextCurrency);
   }
 
   function buildInstallmentRates() {
@@ -150,14 +138,14 @@ export function ProductForm({ turmaId, defaultValues, action, submitLabel = "Sal
     const result = applyInstallmentInterest(baseAmount, installment, rate);
 
     if (installment === 1) {
-      return formatCurrency(result.totalCents, currency);
+      return formatCurrency(result.totalCents);
     }
 
     if (rate !== null && rate > 0) {
-      return `${installment}x de ${formatCurrency(result.perInstallmentCents, currency)} (total ${formatCurrency(result.totalCents, currency)})`;
+      return `${installment}x de ${formatCurrency(result.perInstallmentCents)} (total ${formatCurrency(result.totalCents)})`;
     }
 
-    return `${installment}x de ${formatCurrency(result.perInstallmentCents, currency)} (sem juros)`;
+    return `${installment}x de ${formatCurrency(result.perInstallmentCents)} (sem juros)`;
   }
 
   function togglePaymentMethod(method: string) {
@@ -237,41 +225,20 @@ export function ProductForm({ turmaId, defaultValues, action, submitLabel = "Sal
           {fieldErrorFor("unitAmountCents") && <p className="text-xs mt-1" style={{ color: "var(--admin-danger)" }}>{fieldErrorFor("unitAmountCents")}</p>}
         </div>
         <div>
-          <span style={LABEL_STYLE}>Moedas disponíveis *</span>
-          <input type="hidden" name="currency" value={currency} />
-          <div className="flex gap-2 mt-1 flex-wrap">
-            {[
-              { value: "brl" as const, label: "BRL" },
-              { value: "usd" as const, label: "USD" },
-            ].map((option) => {
-              const selected = selectedCheckoutCurrencies.includes(option.value);
-
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => chooseCheckoutCurrency(option.value)}
-                  aria-pressed={selected}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors min-h-[44px] cursor-pointer"
-                  style={{
-                    background: selected
-                      ? "var(--admin-brand)"
-                      : "var(--admin-surface-elevated)",
-                    color: selected ? "#fff" : "var(--admin-fg)",
-                    borderColor: selected
-                      ? "var(--admin-brand)"
-                      : "var(--admin-border)",
-                  }}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
+          <span style={LABEL_STYLE}>Moeda</span>
+          <input type="hidden" name="currency" value="brl" />
+          <div
+            className="px-3 py-2 rounded-lg text-sm font-medium border"
+            style={{
+              background: "var(--admin-surface-elevated)",
+              color: "var(--admin-fg)",
+              borderColor: "var(--admin-border)",
+            }}
+          >
+            BRL (R$)
           </div>
           <p className="text-xs mt-1" style={{ color: "var(--admin-muted)" }}>
-            {currency === "usd"
-              ? "USD habilita dólar via Stripe e real via pagar.me com conversão automática."
-              : "BRL vende apenas em real pelo pagar.me."}
+            Apenas BRL via pagar.me.
           </p>
         </div>
       </div>

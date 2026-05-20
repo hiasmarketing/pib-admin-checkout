@@ -15,6 +15,10 @@ interface MaskedInputFieldProps {
   disabled?: boolean;
 }
 
+const INPUT_CLASS =
+  "bg-transparent text-[#2b3674] placeholder-[#a3aed0] flex-1 outline-none text-sm h-full w-full disabled:cursor-not-allowed";
+const INPUT_STYLE = { fontFamily: "var(--font-inter-var), Montserrat, sans-serif" };
+
 function CpfCnpjMasked({
   inputId,
   placeholder,
@@ -45,7 +49,8 @@ function CpfCnpjMasked({
       placeholder={placeholder}
       required={required}
       disabled={disabled}
-      className="bg-transparent text-white placeholder-[#828282] flex-1 outline-none text-sm md:text-base min-h-[24px] w-full disabled:cursor-not-allowed"
+      className={INPUT_CLASS}
+      style={INPUT_STYLE}
     />
   );
 }
@@ -69,14 +74,16 @@ export default function MaskedInputField({
     <div className="flex flex-col gap-2">
       <label
         htmlFor={inputId}
-        className="text-white font-inter font-medium text-sm md:text-base"
+        className="font-semibold text-[13px] md:text-sm text-[#2b3674]"
+        style={{ fontFamily: "var(--font-inter-var), Montserrat, sans-serif", letterSpacing: "-0.02em" }}
       >
         {label}
+        {required ? " *" : ""}
       </label>
       <div
-        className={`flex items-center gap-3 bg-[#1e1e1e] border rounded-2xl px-6 py-4 min-h-[56px] ${
-          error ? "border-red-500" : "border-white/10"
-        } ${disabled ? "opacity-60" : ""}`}
+        className={`flex items-center gap-3 bg-white border rounded-[10px] px-5 h-[50px] ${
+          error ? "border-red-500" : "border-[#e0e5f2]"
+        } ${disabled ? "opacity-60" : "focus-within:border-[#0077ff]"}`}
       >
         {isCpfCnpj ? (
           <CpfCnpjMasked
@@ -100,12 +107,15 @@ export default function MaskedInputField({
             required={required}
             type={type}
             disabled={disabled}
-            className="bg-transparent text-white placeholder-[#828282] flex-1 outline-none text-sm md:text-base min-h-[24px] w-full disabled:cursor-not-allowed"
+            className={INPUT_CLASS}
+            style={INPUT_STYLE}
           />
         )}
       </div>
       {error && (
-        <span className="text-red-400 text-xs mt-0.5">{error}</span>
+        <span className="text-red-500 text-xs mt-0.5" role="alert">
+          {error}
+        </span>
       )}
     </div>
   );

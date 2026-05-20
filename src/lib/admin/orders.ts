@@ -31,8 +31,8 @@ export type OrderRow = {
   seller_name_snapshot: string | null;
   seller_slug_snapshot: string | null;
   cpf_cnpj: string | null;
-  stripe_decline_code: string | null;
-  stripe_failure_code: string | null;
+  pagarme_decline_code: string | null;
+  pagarme_failure_message: string | null;
   paid_at: string | null;
   created_at: string;
   lead_id: string;
@@ -119,7 +119,7 @@ export async function getOrderMetrics(period: Period): Promise<{
 
   let paidQuery = supabase
     .from("orders")
-    .select("total_amount_cents, base_total_amount_cents")
+    .select("total_amount_cents")
     .eq("status", "paid");
   if (from) paidQuery = paidQuery.gte("created_at", from);
   if (to) paidQuery = paidQuery.lte("created_at", to);
@@ -129,9 +129,9 @@ export async function getOrderMetrics(period: Period): Promise<{
 
   if (paidError) throw new Error("Falha ao buscar métricas de orders.");
 
-  const rows = (paidOrders ?? []) as { total_amount_cents: number; base_total_amount_cents: number | null }[];
+  const rows = (paidOrders ?? []) as { total_amount_cents: number }[];
   const totalPaid = rows.length;
-  const revenue = rows.reduce((sum, r) => sum + (r.base_total_amount_cents ?? r.total_amount_cents), 0);
+  const revenue = rows.reduce((sum, r) => sum + r.total_amount_cents, 0);
   const conversionRate = totalLeads > 0 ? totalPaid / totalLeads : 0;
   const ticketMedio = totalPaid > 0 ? revenue / totalPaid : 0;
 
@@ -158,7 +158,7 @@ export async function getRawOrdersForChart(
   let query = supabase
     .from("orders")
     .select(
-      "paid_at, total_amount_cents, base_total_amount_cents, payment_method, product_name, lead:leads(utm_source, utm_medium, utm_content, seller_slug)"
+      "paid_at, total_amount_cents, payment_method, product_name, lead:leads(utm_source, utm_medium, utm_content, seller_slug)"
     )
     .eq("status", "paid");
   if (from) query = query.gte("paid_at", from);
@@ -170,7 +170,6 @@ export async function getRawOrdersForChart(
   type RawRow = {
     paid_at: string | null;
     total_amount_cents: number;
-    base_total_amount_cents: number | null;
     payment_method: string;
     product_name: string | null;
     lead: { utm_source: string | null; utm_medium: string | null; utm_content: string | null; seller_slug: string | null } | null;
@@ -181,7 +180,7 @@ export async function getRawOrdersForChart(
     .filter((r) => r.paid_at != null)
     .map((r) => ({
       paid_at: r.paid_at as string,
-      total_amount_cents: r.base_total_amount_cents ?? r.total_amount_cents,
+      total_amount_cents: r.total_amount_cents,
       payment_method: r.payment_method,
       product_name: r.product_name,
       seller_slug: r.lead?.seller_slug ?? null,
@@ -199,7 +198,7 @@ export async function getOrdersDailyChart(
 
   let query = supabase
     .from("orders")
-    .select("paid_at, total_amount_cents, base_total_amount_cents")
+    .select("paid_at, total_amount_cents")
     .eq("status", "paid");
   if (from) query = query.gte("paid_at", from);
   if (to) query = query.lte("paid_at", to);
@@ -207,14 +206,14 @@ export async function getOrdersDailyChart(
   const { data, error } = await query;
   if (error) throw new Error("Falha ao buscar dados do gráfico.");
 
-  const rows = (data ?? []) as { paid_at: string | null; total_amount_cents: number; base_total_amount_cents: number | null }[];
+  const rows = (data ?? []) as { paid_at: string | null; total_amount_cents: number }[];
 
   const byDate: Record<string, { revenue: number; count: number }> = {};
   for (const row of rows) {
     if (!row.paid_at) continue;
     const date = formatSaoPauloDateKey(row.paid_at);
     if (!byDate[date]) byDate[date] = { revenue: 0, count: 0 };
-    byDate[date].revenue += row.base_total_amount_cents ?? row.total_amount_cents;
+    byDate[date].revenue += row.total_amount_cents;
     byDate[date].count += 1;
   }
 

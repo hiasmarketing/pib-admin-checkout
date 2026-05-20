@@ -20,7 +20,7 @@ export async function GET(
   const { data, error } = await getSupabaseAdmin()
     .from("orders")
     .select(
-      "id, status, quantity, total_amount_cents, currency, created_at, paid_at, turma_name, product_name, coupon_code_snapshot, stripe_decline_code, stripe_failure_code"
+      "id, status, quantity, total_amount_cents, currency, created_at, paid_at, turma_id, turma_name, product_name, coupon_code_snapshot, pagarme_decline_code, pagarme_failure_message, turma:turmas(whatsapp_group_url)"
     )
     .eq("id", orderId)
     .maybeSingle();
@@ -34,6 +34,9 @@ export async function GET(
     return jsonError("Pedido não encontrado.", 404);
   }
 
+  const turmaJoined = (data as { turma?: { whatsapp_group_url: string | null } | { whatsapp_group_url: string | null }[] | null }).turma;
+  const turma = Array.isArray(turmaJoined) ? turmaJoined[0] ?? null : turmaJoined;
+
   return Response.json({
     id: data.id,
     status: data.status,
@@ -45,7 +48,8 @@ export async function GET(
     turmaName: data.turma_name ?? null,
     productName: data.product_name ?? null,
     couponCode: data.coupon_code_snapshot ?? null,
-    stripeDeclineCode: data.stripe_decline_code ?? null,
-    stripeFailureCode: data.stripe_failure_code ?? null,
+    pagarmeDeclineCode: data.pagarme_decline_code ?? null,
+    pagarmeFailureMessage: data.pagarme_failure_message ?? null,
+    whatsappGroupUrl: turma?.whatsapp_group_url ?? null,
   });
 }

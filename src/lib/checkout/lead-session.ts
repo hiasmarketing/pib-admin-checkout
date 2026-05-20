@@ -8,11 +8,19 @@ export interface CheckoutLeadContact {
   phone: string;
 }
 
-const LEAD_ID_KEY = "destiny_lead_id";
-const LEAD_CONTACT_KEY = "destiny_lead_contact";
-const CONTACT_KEY = "destiny_contact";
+const LEAD_ID_KEY = "pib_lead_id";
+const LEAD_CONTACT_KEY = "pib_lead_contact";
+const CONTACT_KEY = "pib_contact";
+// Compat: ler sessões legadas com prefixo destiny_* por 7 dias após deploy.
+const LEGACY_LEAD_ID_KEY = "destiny_lead_id";
+const LEGACY_LEAD_CONTACT_KEY = "destiny_lead_contact";
+const LEGACY_CONTACT_KEY = "destiny_contact";
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function readWithLegacy(primary: string, legacy: string): string | null {
+  return sessionStorage.getItem(primary) ?? sessionStorage.getItem(legacy);
+}
 
 function parseContact(raw: string | null): CheckoutLeadContact | null {
   if (!raw) return null;
@@ -32,18 +40,20 @@ function parseContact(raw: string | null): CheckoutLeadContact | null {
 }
 
 export function getStoredCheckoutLeadId(): string | null {
-  const leadId = sessionStorage.getItem(LEAD_ID_KEY);
+  const leadId = readWithLegacy(LEAD_ID_KEY, LEGACY_LEAD_ID_KEY);
   if (leadId && UUID_RE.test(leadId)) return leadId;
 
   sessionStorage.removeItem(LEAD_ID_KEY);
+  sessionStorage.removeItem(LEGACY_LEAD_ID_KEY);
+  sessionStorage.removeItem("pib_order_id");
   sessionStorage.removeItem("destiny_order_id");
   return null;
 }
 
 export function getStoredCheckoutContact(): CheckoutLeadContact | null {
   return (
-    parseContact(sessionStorage.getItem(LEAD_CONTACT_KEY)) ??
-    parseContact(sessionStorage.getItem(CONTACT_KEY))
+    parseContact(readWithLegacy(LEAD_CONTACT_KEY, LEGACY_LEAD_CONTACT_KEY)) ??
+    parseContact(readWithLegacy(CONTACT_KEY, LEGACY_CONTACT_KEY))
   );
 }
 

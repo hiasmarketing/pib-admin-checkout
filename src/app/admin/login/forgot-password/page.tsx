@@ -2,7 +2,7 @@ import Image from "next/image";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import "../../admin.css";
 
-export const metadata = { title: "Recuperar senha — Admin Método Destiny" };
+export const metadata = { title: "Recuperar senha — Admin PIB — Faria e Castro" };
 
 export default function ForgotPasswordPage() {
   return (
@@ -11,8 +11,8 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 flex items-center justify-center">
             <Image
-              src="/images/logo-destiny.png"
-              alt="Método Destiny"
+              src="/images/logo-pib.png"
+              alt="PIB — Faria e Castro"
               width={96}
               height={60}
               priority

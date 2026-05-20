@@ -67,11 +67,7 @@ function extractProductInput(data: FormData): ProductInput {
   const paymentMethods = data
     .getAll("paymentMethods")
     .filter(
-      (method): method is PaymentMethodType =>
-        method === "card" ||
-        method === "pix" ||
-        method === "klarna" ||
-        method === "afterpay_clearpay"
+      (method): method is PaymentMethodType => method === "card" || method === "pix"
     );
 
   return {
@@ -80,7 +76,7 @@ function extractProductInput(data: FormData): ProductInput {
     slug: String(data.get("slug") ?? "").trim(),
     description: (data.get("description") as string) || null,
     unitAmountCents: Number(data.get("unitAmountCents")),
-    currency: (data.get("currency") as string) === "usd" ? "usd" : "brl",
+    currency: "brl",
     maxQuantity: Number(data.get("maxQuantity")),
     active: data.get("active") === "1",
     isDefault: data.get("isDefault") === "1",

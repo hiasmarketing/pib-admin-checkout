@@ -334,13 +334,13 @@ export async function sendDueDeliveries(now: Date): Promise<void> {
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      "X-Destiny-Event": event.type as string,
+      "X-Pib-Event": event.type as string,
     };
 
     if (endpoint.secret_encrypted) {
       const secret = decryptSecret(endpoint.secret_encrypted as string);
       const sig = await signPayload(payloadStr, secret);
-      headers["X-Destiny-Signature"] = `sha256=${sig}`;
+      headers["X-Pib-Signature"] = `sha256=${sig}`;
     }
 
     let statusCode: number | null = null;
