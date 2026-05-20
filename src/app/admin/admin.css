@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/* Admin theme CSS variables */
+.admin-root {
+  /* Dark theme (default) */
+  color-scheme: dark;
+  --admin-bg: #0a0a0a;
+  --logo-filter: none;
+  --admin-surface: #111111;
+  --admin-surface-elevated: #1a1a1a;
+  --admin-border: #2a2a2a;
+  --admin-fg: #f5f5f5;
+  --admin-muted: #888888;
+  --admin-brand: #f318ff;
+  --admin-brand-dark: #c913dd;
+  --admin-success: #22c55e;
+  --admin-warning: #f59e0b;
+  --admin-danger: #ef4444;
+  --admin-input-bg: #1a1a1a;
+  --admin-sidebar-bg: #0d0d0d;
+  --admin-profile-menu-bg: #30302d;
+  --admin-profile-hover-bg: rgba(255, 255, 255, 0.08);
+  --admin-profile-avatar-bg: #d8d8d8;
+  --admin-profile-avatar-fg: #111111;
+
+  --font-sora: var(--font-sora-var);
+  --font-inter: var(--font-inter-var);
+}
+
+[data-admin-theme="light"] .admin-root {
+  color-scheme: light;
+  --admin-bg: #f5f5f5;
+  --logo-filter: invert(1);
+  --admin-surface: #ffffff;
+  --admin-surface-elevated: #eeeeee;
+  --admin-border: #e0e0e0;
+  --admin-fg: #111111;
+  --admin-muted: #666666;
+  --admin-brand: #c913dd;
+  --admin-brand-dark: #a10ab5;
+  --admin-success: #16a34a;
+  --admin-warning: #d97706;
+  --admin-danger: #dc2626;
+  --admin-input-bg: #f0f0f0;
+  --admin-sidebar-bg: #f9f9f9;
+  --admin-profile-menu-bg: #ffffff;
+  --admin-profile-hover-bg: rgba(0, 0, 0, 0.06);
+  --admin-profile-avatar-bg: #e6e6e6;
+  --admin-profile-avatar-fg: #111111;
+}
+
+.admin-root {
+  background: var(--admin-bg);
+  color: var(--admin-fg);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.admin-root :focus-visible {
+  outline: 2px solid var(--admin-brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.admin-root button:not(:disabled):hover,
+.admin-root a[class*="rounded"]:hover {
+  opacity: 0.85;
+  transition: opacity 150ms ease;
+}
+
+.admin-root button.admin-profile-trigger:hover,
+.admin-root button.admin-profile-menu-item:hover {
+  background: var(--admin-profile-hover-bg);
+  opacity: 1;
+}

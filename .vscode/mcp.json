@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "framer-brunet": {
+      "type": "http",
+      "url": "https://mcp.unframer.co/mcp?id=9a9d337992618534fd7d7ec17f001011acba0485beb9c3d8d67f40e8fbea0d35&secret=6BFXCNUyzmXIzEhXz39gdFeRsCm9FvS6"
+    }
+  },
+  "inputs": []
+}

@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+html,
+body {
+  background: #000;
+}
+
+@theme inline {
+  --color-brand: #f318ff;
+  --color-brand-dark: #c913dd;
+  --color-step-inactive: #252525;
+
+  --color-brand-cta: rgb(197, 20, 221);
+
+  --font-inter: var(--font-inter-var);
+  --font-sora: var(--font-sora-var);
+  --font-rethink-sans: var(--font-rethink-sans-var);
+  --font-dm-sans: var(--font-dm-sans-var);
+}
+
+@keyframes landingTickerUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes landingTickerDown {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
