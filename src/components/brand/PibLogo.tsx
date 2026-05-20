@@ -20,7 +20,7 @@ export default function PibLogo({
   const dims = SIZE_MAP[size];
 
   return (
-    <div className={`inline-flex items-center ${className}`} aria-label="PIB — Faria e Castro">
+    <div className={`inline-flex items-center ${className}`} aria-label="PIB">
       <Image
         src="/images/pib-icon.svg"
         alt=""

@@ -2,7 +2,7 @@ import Image from "next/image";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import "../../admin.css";
 
-export const metadata = { title: "Recuperar senha — Admin PIB — Faria e Castro" };
+export const metadata = { title: "Recuperar senha — Admin PIB " };
 
 export default function ForgotPasswordPage() {
   return (
@@ -12,7 +12,7 @@ export default function ForgotPasswordPage() {
           <div className="mx-auto mb-4 flex items-center justify-center">
             <Image
               src="/images/logo-pib.png"
-              alt="PIB — Faria e Castro"
+              alt="PIB"
               width={96}
               height={60}
               priority

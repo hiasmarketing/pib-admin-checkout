@@ -4,7 +4,7 @@ import { getCurrentOperator } from "@/lib/admin/auth";
 import { LoginForm } from "./LoginForm";
 import "../admin.css";
 
-export const metadata = { title: "Login — Admin PIB — Faria e Castro" };
+export const metadata = { title: "Login — Admin PIB" };
 
 export default async function AdminLoginPage() {
   const operator = await getCurrentOperator();
@@ -19,7 +19,7 @@ export default async function AdminLoginPage() {
           <div className="mx-auto mb-4 flex items-center justify-center">
             <Image
               src="/images/logo-pib.png"
-              alt="PIB — Faria e Castro"
+              alt="PIB"
               width={96}
               height={60}
               priority
@@ -29,7 +29,7 @@ export default async function AdminLoginPage() {
             className="text-xl font-semibold"
             style={{ color: "var(--admin-fg)", fontFamily: "var(--font-sora)" }}
           >
-            PIB — Faria e Castro
+            PIB
           </h1>
           <p className="text-sm mt-1" style={{ color: "var(--admin-muted)" }}>
             Área administrativa

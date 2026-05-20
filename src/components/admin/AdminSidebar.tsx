@@ -116,7 +116,7 @@ export function AdminSidebar({ operator }: { operator: AdminShellOperator }) {
       >
         <Image
           src="/images/logo-pib.png"
-          alt="PIB — Faria e Castro"
+          alt="PIB"
           width={140}
           height={48}
           style={{ filter: "var(--logo-filter)", objectFit: "contain" }}

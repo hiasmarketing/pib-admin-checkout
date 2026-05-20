@@ -202,7 +202,7 @@ function ObrigadoContent() {
         <div className="mx-auto max-w-[1920px] flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
           <p className="text-xs md:text-sm text-[#a3aed0] font-medium">
             © 2026. All Rights Reserved. Made by{" "}
-            <span className="font-bold">PIB · Faria e Castro</span>
+            <span className="font-bold">PIB</span>
           </p>
           <nav className="flex flex-wrap gap-4 md:gap-6 text-xs md:text-sm font-semibold text-[#12372a]">
             <a href="#" className="hover:underline">Instructions</a>

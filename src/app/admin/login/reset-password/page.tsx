@@ -4,8 +4,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/ssr";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 import "../../admin.css";
 
-export const metadata = { title: "Nova senha — Admin PIB — Faria e Castro" };
-
+export const metadata = { title: "Nova senha — Admin PIB " };
+  
 export default async function ResetPasswordPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -23,7 +23,7 @@ export default async function ResetPasswordPage() {
           <div className="mx-auto mb-4 flex items-center justify-center">
             <Image
               src="/images/logo-pib.png"
-              alt="PIB — Faria e Castro"
+              alt="PIB"
               width={96}
               height={60}
               priority

@@ -33,7 +33,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "PIB — Faria e Castro",
+  title: "PIB",
   description: "Imersão presencial — garanta seu ingresso",
 };
 
