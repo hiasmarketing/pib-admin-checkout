@@ -26,7 +26,7 @@ export default async function CouponsPage() {
       ) : (
         <div className="space-y-2">
           {coupons.map((coupon) => (
-            <Link key={coupon.id} href={`/admin/coupons/${coupon.id}`} className="block">
+            <Link key={coupon.id} href={`/admin/coupons/${coupon.code}`} className="block">
               <div
                 className="rounded-xl border p-4 hover:border-[var(--admin-brand)]/30 transition-colors"
                 style={{ background: "var(--admin-surface)", borderColor: "var(--admin-border)" }}

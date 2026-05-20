@@ -14,7 +14,7 @@ import type { LeadChartRow } from "@/lib/admin/leads";
 import { formatSaoPauloDateKey } from "@/lib/timezone";
 
 const PALETTE = [
-  "#f318ff",
+  "#0077ff",
   "#818cf8",
   "#34d399",
   "#f59e0b",

@@ -1,4 +1,6 @@
+import { notFound } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
+import { getTurmaBySlug } from "@/lib/catalog/turmas";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
 import { ProductForm } from "../ProductForm";
@@ -9,22 +11,24 @@ export const metadata = { title: "Novo Produto — Admin" };
 export default async function NewProductPage({
   params,
 }: {
-  params: Promise<{ turmaId: string }>;
+  params: Promise<{ turmaSlug: string }>;
 }) {
   await requireOperator();
-  const { turmaId } = await params;
+  const { turmaSlug } = await params;
+  const turma = await getTurmaBySlug(turmaSlug);
+  if (!turma) notFound();
 
   return (
     <div>
       <AdminPageHeader
         title="Novo Produto"
         action={
-          <AdminButton href={`/admin/turmas/${turmaId}`} variant="secondary">
+          <AdminButton href={`/admin/turmas/${turma.slug}`} variant="secondary">
             ← Voltar
           </AdminButton>
         }
       />
-      <ProductForm turmaId={turmaId} action={createProductAction} submitLabel="Criar produto" />
+      <ProductForm turmaId={turma.id} turmaSlug={turma.slug} action={createProductAction} submitLabel="Criar produto" />
     </div>
   );
 }

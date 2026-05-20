@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { requireAdmin } from "@/lib/admin/auth";
+import { ADMIN_CACHE_TAGS } from "@/lib/admin/cache";
 import {
   AdminUserConflictError,
   AdminUserValidationError,
@@ -43,6 +44,7 @@ export async function createAdminUserAction(
       role: String(data.get("role") ?? "operator") as AdminRole,
     });
     revalidatePath("/admin/users");
+    revalidateTag(ADMIN_CACHE_TAGS.users, "default");
     return result;
   } catch (err) {
     if (err instanceof AdminUserValidationError) {
@@ -83,7 +85,8 @@ export async function updateAdminUserRoleAction(
     const updatedUser = await updateAdminUserRole(userId, role);
 
     revalidatePath("/admin/users");
-    revalidatePath(`/admin/users/${updatedUser.id}`);
+    revalidatePath(`/admin/users/${updatedUser.shortId}`);
+    revalidateTag(ADMIN_CACHE_TAGS.users, "default");
     return { success: true };
   } catch (err) {
     if (err instanceof AdminUserValidationError) {

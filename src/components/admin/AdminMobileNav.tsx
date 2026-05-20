@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AdminProfileMenu } from "./AdminProfileMenu";
+import PibLogo from "@/components/brand/PibLogo";
 
 type AdminShellOperator = {
   name: string;
@@ -36,15 +36,8 @@ export function AdminMobileNav({ operator }: { operator: AdminShellOperator }) {
         className="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 h-16 border-b md:hidden"
         style={{ background: "var(--admin-sidebar-bg)", borderColor: "var(--admin-border)" }}
       >
-        <div className="flex items-center">
-          <Image
-            src="/images/logo-pib.png"
-            alt="PIB"
-            width={618}
-            height={384}
-            style={{ filter: "var(--logo-filter)", width: "auto", height: "46px" }}
-            priority
-          />
+        <div className="flex items-center" style={{ color: "var(--admin-fg)" }}>
+          <PibLogo size="sm" />
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -77,14 +70,8 @@ export function AdminMobileNav({ operator }: { operator: AdminShellOperator }) {
             className="fixed inset-y-0 left-0 z-50 w-64 flex flex-col md:hidden"
             style={{ background: "var(--admin-sidebar-bg)", overscrollBehavior: "contain" }}
           >
-            <div className="flex items-center justify-between px-4 h-16 border-b flex-shrink-0" style={{ borderColor: "var(--admin-border)" }}>
-              <Image
-                src="/images/logo-pib.png"
-                alt="PIB"
-                width={618}
-                height={384}
-                style={{ filter: "var(--logo-filter)", width: "auto", height: "46px" }}
-              />
+            <div className="flex items-center justify-between px-4 h-16 border-b flex-shrink-0" style={{ borderColor: "var(--admin-border)", color: "var(--admin-fg)" }}>
+              <PibLogo size="sm" />
               <button
                 onClick={() => setOpen(false)}
                 className="w-10 h-10 flex items-center justify-center rounded-lg border transition-colors"

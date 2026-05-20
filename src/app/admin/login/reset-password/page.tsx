@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/ssr";
 import { ResetPasswordForm } from "./ResetPasswordForm";
+import PibLogo from "@/components/brand/PibLogo";
 import "../../admin.css";
 
 export const metadata = { title: "Nova senha — Admin PIB " };
@@ -20,14 +20,8 @@ export default async function ResetPasswordPage() {
     <div className="admin-root min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex items-center justify-center">
-            <Image
-              src="/images/logo-pib.png"
-              alt="PIB"
-              width={96}
-              height={60}
-              priority
-            />
+          <div className="mx-auto mb-4 flex items-center justify-center" style={{ color: "var(--admin-fg)" }}>
+            <PibLogo size="md" />
           </div>
           <h1
             className="text-xl font-semibold"

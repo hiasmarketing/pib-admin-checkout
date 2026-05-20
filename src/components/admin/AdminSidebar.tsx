@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AdminProfileMenu } from "./AdminProfileMenu";
+import PibLogo from "@/components/brand/PibLogo";
 
 type AdminShellOperator = {
   name: string;
@@ -112,16 +112,9 @@ export function AdminSidebar({ operator }: { operator: AdminShellOperator }) {
       {/* Logo */}
       <div
         className="flex items-center justify-center px-5 py-4 border-b"
-        style={{ borderColor: "var(--admin-border)" }}
+        style={{ borderColor: "var(--admin-border)", color: "var(--admin-fg)" }}
       >
-        <Image
-          src="/images/logo-pib.png"
-          alt="PIB"
-          width={140}
-          height={48}
-          style={{ filter: "var(--logo-filter)", objectFit: "contain" }}
-          priority
-        />
+        <PibLogo size="sm" />
       </div>
 
       {/* Navigation */}

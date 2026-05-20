@@ -33,7 +33,7 @@ export default async function TurmasPage() {
       ) : (
         <div className="space-y-2">
           {turmas.map((turma) => (
-            <Link key={turma.id} href={`/admin/turmas/${turma.id}`} className="block">
+            <Link key={turma.id} href={`/admin/turmas/${turma.slug}`} className="block">
               <div
                 className="rounded-xl border p-4 hover:border-[var(--admin-brand)]/30 transition-colors"
                 style={{

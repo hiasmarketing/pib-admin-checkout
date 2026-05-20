@@ -36,10 +36,30 @@ const LABEL_STYLE = {
   color: "var(--admin-muted)",
 } as const;
 
+function slugify(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function TurmaForm({ defaultValues, action, submitLabel = "Salvar" }: TurmaFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<{ field: string; message: string } | null>(null);
+  const [name, setName] = useState(defaultValues?.name ?? "");
+  const [slug, setSlug] = useState(defaultValues?.slug ?? "");
   const [pending, startTransition] = useTransition();
+  const isEditing = Boolean(defaultValues);
+
+  function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const nextName = e.target.value;
+    setName(nextName);
+    if (!isEditing) {
+      setSlug(slugify(nextName));
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -63,13 +83,24 @@ export function TurmaForm({ defaultValues, action, submitLabel = "Salvar" }: Tur
     <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
       <div>
         <label htmlFor="name" style={LABEL_STYLE}>Nome *</label>
-        <input id="name" name="name" required autoComplete="off" defaultValue={defaultValues?.name} style={INPUT_STYLE} />
+        <input id="name" name="name" required autoComplete="off" value={name} onChange={handleNameChange} style={INPUT_STYLE} />
         {fieldErrorFor("name") && <p className="text-xs mt-1" style={{ color: "var(--admin-danger)" }}>{fieldErrorFor("name")}</p>}
       </div>
 
       <div>
         <label htmlFor="slug" style={LABEL_STYLE}>Slug *</label>
-        <input id="slug" name="slug" required autoComplete="off" spellCheck={false} defaultValue={defaultValues?.slug} style={INPUT_STYLE} placeholder="ex: junho-2026" />
+        <input
+          id="slug"
+          name="slug"
+          required
+          autoComplete="off"
+          spellCheck={false}
+          readOnly
+          aria-readonly="true"
+          value={slug}
+          style={{ ...INPUT_STYLE, background: "var(--admin-surface-elevated)", color: "var(--admin-muted)", cursor: "not-allowed" }}
+          placeholder="Gerado automaticamente pelo nome"
+        />
         {fieldErrorFor("slug") && <p className="text-xs mt-1" style={{ color: "var(--admin-danger)" }}>{fieldErrorFor("slug")}</p>}
       </div>
 

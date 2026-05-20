@@ -6,11 +6,13 @@ import {
   getSaoPauloTodayRange,
 } from "@/lib/timezone";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { ADMIN_CACHE_TAGS, cachedAdminQuery } from "./cache";
 
 const PAGE_SIZE = 50;
 
 export type LeadRow = {
   id: string;
+  short_id: string;
   name: string;
   email: string;
   phone: string;
@@ -40,7 +42,13 @@ export function periodToDates(period: Period): { from?: string; to?: string } {
   return { from: from.toISOString(), to };
 }
 
-export async function listLeads(params: {
+export const listLeads = cachedAdminQuery(
+  _listLeadsImpl,
+  ["admin", "leads", "list"],
+  [ADMIN_CACHE_TAGS.leads, ADMIN_CACHE_TAGS.orders],
+);
+
+async function _listLeadsImpl(params: {
   page?: number;
   q?: string;
   seller?: string;
@@ -95,16 +103,35 @@ export async function listLeads(params: {
   };
 }
 
-export async function getLead(id: string): Promise<LeadRow | null> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("leads")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+export const getLead = cachedAdminQuery(
+  async (id: string): Promise<LeadRow | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("leads")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error) throw new Error("Falha ao buscar lead.");
-  return data as LeadRow | null;
-}
+    if (error) throw new Error("Falha ao buscar lead.");
+    return data as LeadRow | null;
+  },
+  ["admin", "leads", "byId"],
+  [ADMIN_CACHE_TAGS.leads],
+);
+
+export const getLeadByShortId = cachedAdminQuery(
+  async (shortId: string): Promise<LeadRow | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("leads")
+      .select("*")
+      .eq("short_id", shortId)
+      .maybeSingle();
+
+    if (error) throw new Error("Falha ao buscar lead.");
+    return data as LeadRow | null;
+  },
+  ["admin", "leads", "byShortId"],
+  [ADMIN_CACHE_TAGS.leads],
+);
 
 export type LeadChartRow = {
   created_at: string;
@@ -114,7 +141,13 @@ export type LeadChartRow = {
   seller_slug: string | null;
 };
 
-export async function getRawLeadsForChart(
+export const getRawLeadsForChart = cachedAdminQuery(
+  _getRawLeadsForChartImpl,
+  ["admin", "leads", "chart"],
+  [ADMIN_CACHE_TAGS.leads],
+);
+
+async function _getRawLeadsForChartImpl(
   period: Period
 ): Promise<LeadChartRow[]> {
   const { from, to } = periodToDates(period);
@@ -132,7 +165,13 @@ export async function getRawLeadsForChart(
   return (data ?? []) as LeadChartRow[];
 }
 
-export async function getLeadMetrics(period: Period): Promise<{ total: number }> {
+export const getLeadMetrics = cachedAdminQuery(
+  _getLeadMetricsImpl,
+  ["admin", "leads", "metrics"],
+  [ADMIN_CACHE_TAGS.leads],
+);
+
+async function _getLeadMetricsImpl(period: Period): Promise<{ total: number }> {
   const { from, to } = periodToDates(period);
   const supabase = getSupabaseAdmin();
 
@@ -146,7 +185,13 @@ export async function getLeadMetrics(period: Period): Promise<{ total: number }>
   return { total: count ?? 0 };
 }
 
-export async function getLeadUtmPatterns(): Promise<{
+export const getLeadUtmPatterns = cachedAdminQuery(
+  _getLeadUtmPatternsImpl,
+  ["admin", "leads", "utmPatterns"],
+  [ADMIN_CACHE_TAGS.leads],
+);
+
+async function _getLeadUtmPatternsImpl(): Promise<{
   sources: string[];
   mediums: string[];
   campaigns: string[];

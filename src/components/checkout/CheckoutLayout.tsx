@@ -10,15 +10,15 @@ export default function CheckoutLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen bg-white flex flex-col text-[var(--color-pib-label,#2b3674)]">
+    <div className="relative min-h-screen bg-white flex flex-col text-(--color-pib-label,#2b3674)">
       <Suspense fallback={null}>
         <SellerAttributionBar />
       </Suspense>
 
-      <div className="flex-1 w-full mx-auto max-w-[1920px] px-6 md:px-16 lg:px-24 py-10 md:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center lg:items-start">
+      <div className="flex-1 w-full mx-auto max-w-6xl px-6 md:px-12 py-10 md:py-16 flex flex-col justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-24 items-center">
           {/* Logo column — visible só desktop, vertical centered */}
-          <div className="hidden lg:flex lg:sticky lg:top-24 lg:justify-center lg:items-center lg:min-h-[600px]">
+          <div className="hidden lg:flex lg:sticky lg:top-24 lg:justify-center lg:items-center">
             <PibLogo size="lg" priority />
           </div>
 
@@ -28,17 +28,17 @@ export default function CheckoutLayout({
           </div>
 
           {/* Form column */}
-          <main className="w-full max-w-[860px] mx-auto lg:mx-0">{children}</main>
+          <main className="w-full max-w-[450px] mx-auto lg:mx-0">{children}</main>
         </div>
       </div>
 
-      <footer className="w-full border-t border-[var(--color-pib-border,#e0e5f2)] py-6 px-6 md:px-16 lg:px-24">
-        <div className="mx-auto max-w-[1920px] flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
-          <p className="text-xs md:text-sm text-[var(--color-pib-muted,#a3aed0)] font-medium">
+      <footer className="w-full border-t border-(--color-pib-border,#e0e5f2) py-6 px-6 md:px-12">
+        <div className="mx-auto max-w-6xl flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
+          <p className="text-xs md:text-sm text-(--color-pib-muted,#a3aed0) font-medium">
             © 2026. All Rights Reserved. Made by{" "}
             <span className="font-bold">PIB</span>
           </p>
-          <nav className="flex flex-wrap gap-4 md:gap-6 text-xs md:text-sm font-semibold text-[var(--color-pib-primary,#12372a)]">
+          <nav className="flex flex-wrap gap-4 md:gap-6 text-xs md:text-sm font-semibold text-(--color-pib-primary,#12372a)">
             <a href="#" className="hover:underline">Instructions</a>
             <a href="#" className="hover:underline">License</a>
             <a href="#" className="hover:underline">Terms of Use</a>

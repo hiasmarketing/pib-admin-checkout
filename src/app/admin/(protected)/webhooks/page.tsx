@@ -33,7 +33,7 @@ export default async function WebhooksPage() {
       ) : (
         <div className="space-y-2">
           {endpoints.map((ep) => (
-            <Link key={ep.id} href={`/admin/webhooks/${ep.id}`} className="block">
+            <Link key={ep.id} href={`/admin/webhooks/${ep.shortId}`} className="block">
               <div
                 className="rounded-xl border p-4 hover:border-[var(--admin-brand)]/30 transition-colors"
                 style={{ background: "var(--admin-surface)", borderColor: "var(--admin-border)" }}

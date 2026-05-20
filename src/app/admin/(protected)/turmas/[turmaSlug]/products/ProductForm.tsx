@@ -7,6 +7,7 @@ import { applyInstallmentInterest } from "@/lib/catalog/installments";
 
 interface ProductFormProps {
   turmaId: string;
+  turmaSlug: string;
   defaultValues?: {
     name: string;
     slug: string;
@@ -87,10 +88,11 @@ function getSharedInstallmentRateInput(rates: Record<string, number> | undefined
   return firstInstallmentRate ? formatRateInput(firstInstallmentRate[1]) : "";
 }
 
-export function ProductForm({ turmaId, defaultValues, action, submitLabel = "Salvar" }: ProductFormProps) {
+export function ProductForm({ turmaId, turmaSlug, defaultValues, action, submitLabel = "Salvar" }: ProductFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<{ field: string; message: string } | null>(null);
   const [pending, startTransition] = useTransition();
+  const isEditing = Boolean(defaultValues);
   const [unitAmountCents, setUnitAmountCents] = useState(
     defaultValues?.unitAmountCents ? String(defaultValues.unitAmountCents) : ""
   );
@@ -367,11 +369,11 @@ export function ProductForm({ turmaId, defaultValues, action, submitLabel = "Sal
 
       <div className="flex gap-6">
         <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" name="active" defaultChecked={defaultValues?.active} value="1" className="w-4 h-4" />
+          <input type="checkbox" name="active" defaultChecked={isEditing ? defaultValues?.active : true} value="1" className="w-4 h-4" />
           <span className="text-sm" style={{ color: "var(--admin-fg)" }}>Ativo</span>
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" name="isDefault" defaultChecked={defaultValues?.isDefault} value="1" className="w-4 h-4" />
+          <input type="checkbox" name="isDefault" defaultChecked={isEditing ? defaultValues?.isDefault : true} value="1" className="w-4 h-4" />
           <span className="text-sm" style={{ color: "var(--admin-fg)" }}>Produto padrão da turma</span>
         </label>
       </div>
@@ -389,7 +391,7 @@ export function ProductForm({ turmaId, defaultValues, action, submitLabel = "Sal
         <AdminButton type="submit" disabled={pending}>
           {pending ? "Salvando…" : submitLabel}
         </AdminButton>
-        <AdminButton href={`/admin/turmas/${turmaId}`} variant="secondary">
+        <AdminButton href={`/admin/turmas/${turmaSlug}`} variant="secondary">
           Cancelar
         </AdminButton>
       </div>

@@ -96,29 +96,29 @@ export default async function LeadsPage({
                     style={{ borderColor: "var(--admin-border)" }}
                   >
                     <td className="py-3 px-4">
-                      <Link href={`/admin/leads/${lead.id}`} className="block">
+                      <Link href={`/admin/leads/${lead.short_id}`} className="block">
                         <div className="font-medium" style={{ color: "var(--admin-fg)" }}>{lead.name}</div>
                         <div className="text-xs" style={{ color: "var(--admin-muted)" }}>{lead.email}</div>
                         <div className="text-xs" style={{ color: "var(--admin-muted)" }}>{lead.phone}</div>
                       </Link>
                     </td>
                     <td className="py-3 px-4" style={{ color: "var(--admin-muted)" }}>
-                      <Link href={`/admin/leads/${lead.id}`} className="block">
+                      <Link href={`/admin/leads/${lead.short_id}`} className="block">
                         {formatDate(lead.created_at)}
                       </Link>
                     </td>
                     <td className="py-3 px-4 hidden md:table-cell" style={{ color: "var(--admin-muted)" }}>
-                      <Link href={`/admin/leads/${lead.id}`} className="block">
+                      <Link href={`/admin/leads/${lead.short_id}`} className="block">
                         {lead.seller_name ?? "—"}
                       </Link>
                     </td>
                     <td className="py-3 px-4 hidden md:table-cell" style={{ color: "var(--admin-muted)" }}>
-                      <Link href={`/admin/leads/${lead.id}`} className="block">
+                      <Link href={`/admin/leads/${lead.short_id}`} className="block">
                         {lead.utm_source ?? "—"}
                       </Link>
                     </td>
                     <td className="py-3 px-4">
-                      <Link href={`/admin/leads/${lead.id}`} className="block">
+                      <Link href={`/admin/leads/${lead.short_id}`} className="block">
                         {lead.converted ? (
                           <AdminStatusChip status="paid" label="Sim" />
                         ) : (

@@ -110,7 +110,7 @@ function FormularioContent() {
     <CheckoutLayout>
       <StepIndicator currentStep={1} />
 
-      <h1 className="text-white font-sora font-semibold text-xl md:text-2xl text-center mb-8 leading-snug">
+      <h1 className="text-(--color-pib-label,#2b3674) font-sora font-semibold text-xl md:text-2xl text-center mb-8 leading-snug">
         {t("title")}
       </h1>
 
@@ -155,7 +155,7 @@ function FormularioContent() {
         <div className="pt-6">
           {/* Mobile: full-width button, no back on step 1 */}
           {submitError && (
-            <p className="text-sm text-red-300 font-inter mb-4" role="alert">
+            <p className="text-sm text-red-600 font-inter mb-4" role="alert">
               {submitError}
             </p>
           )}

@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
+import { ADMIN_CACHE_TAGS } from "@/lib/admin/cache";
 import { createSeller, updateSeller } from "@/lib/catalog/sellers";
 import { ValidationError } from "@/lib/catalog/validation";
 import type { SellerInput } from "@/lib/catalog/types";
@@ -25,12 +26,13 @@ export async function createSellerAction(
 ): Promise<{ error?: string; fieldError?: { field: string; message: string } } | void> {
   await requireOperator();
 
-  let sellerId: string;
+  let sellerSlug: string;
   try {
     const input = extractSellerInput(data);
     const seller = await createSeller(input);
     revalidatePath("/admin/sellers");
-    sellerId = seller.id;
+    revalidateTag(ADMIN_CACHE_TAGS.sellers, "default");
+    sellerSlug = seller.slug;
   } catch (err) {
     if (err instanceof ValidationError) {
       return { fieldError: { field: err.field, message: err.message } };
@@ -38,7 +40,7 @@ export async function createSellerAction(
     if (err instanceof Error) return { error: err.message };
     return { error: "Erro ao criar vendedor." };
   }
-  redirect(`/admin/sellers/${sellerId}`);
+  redirect(`/admin/sellers/${sellerSlug}`);
 }
 
 export async function updateSellerAction(
@@ -49,9 +51,10 @@ export async function updateSellerAction(
 
   try {
     const input = extractSellerInput(data);
-    await updateSeller(sellerId, input);
+    const updated = await updateSeller(sellerId, input);
     revalidatePath("/admin/sellers");
-    revalidatePath(`/admin/sellers/${sellerId}`);
+    revalidatePath(`/admin/sellers/${updated.slug}`);
+    revalidateTag(ADMIN_CACHE_TAGS.sellers, "default");
     return { success: true };
   } catch (err) {
     if (err instanceof ValidationError) {

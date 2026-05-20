@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { ADMIN_CACHE_TAGS, cachedAdminQuery } from "@/lib/admin/cache";
 import { validateProductInput, ValidationError } from "./validation";
 import type {
   ProductDTO,
@@ -54,29 +55,54 @@ function mapRow(row: Record<string, unknown>): ProductDTO {
   };
 }
 
-export async function listProducts(turmaId: string): Promise<ProductDTO[]> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("products")
-    .select("*")
-    .eq("turma_id", turmaId)
-    .order("created_at", { ascending: false });
+export const listProducts = cachedAdminQuery(
+  async (turmaId: string): Promise<ProductDTO[]> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("products")
+      .select("*")
+      .eq("turma_id", turmaId)
+      .order("created_at", { ascending: false });
 
-  if (error) throw new Error("Falha ao listar produtos.");
+    if (error) throw new Error("Falha ao listar produtos.");
 
-  return (data ?? []).map(mapRow);
-}
+    return (data ?? []).map(mapRow);
+  },
+  ["catalog", "products", "list"],
+  [ADMIN_CACHE_TAGS.products],
+);
 
-export async function getProduct(id: string): Promise<ProductDTO | null> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+export const getProduct = cachedAdminQuery(
+  async (id: string): Promise<ProductDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error) throw new Error("Falha ao buscar produto.");
+    if (error) throw new Error("Falha ao buscar produto.");
 
-  return data ? mapRow(data) : null;
-}
+    return data ? mapRow(data) : null;
+  },
+  ["catalog", "products", "byId"],
+  [ADMIN_CACHE_TAGS.products],
+);
+
+export const getProductBySlug = cachedAdminQuery(
+  async (turmaId: string, slug: string): Promise<ProductDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("products")
+      .select("*")
+      .eq("turma_id", turmaId)
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) throw new Error("Falha ao buscar produto.");
+
+    return data ? mapRow(data) : null;
+  },
+  ["catalog", "products", "bySlug"],
+  [ADMIN_CACHE_TAGS.products],
+);
 
 export async function createProduct(input: ProductInput): Promise<ProductDTO> {
   validateProductInput(input);

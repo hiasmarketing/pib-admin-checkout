@@ -40,7 +40,7 @@ export default async function AdminUsersPage() {
       ) : (
         <section className="space-y-2">
           {users.map((user) => (
-            <Link key={user.id} href={`/admin/users/${user.id}`} className="block">
+            <Link key={user.id} href={`/admin/users/${user.shortId}`} className="block">
               <AdminCard className="transition-colors hover:border-[var(--admin-brand)]/30">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="min-w-0">

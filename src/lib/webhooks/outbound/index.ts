@@ -12,6 +12,7 @@ export type OutboundWebhookDeliveryStatus =
 
 export interface OutboundWebhookEndpointDTO {
   id: string;
+  shortId: string;
   name: string;
   url: string;
   active: boolean;
@@ -79,6 +80,7 @@ function decryptSecret(encrypted: string): string {
 function mapEndpointRow(row: Record<string, unknown>): OutboundWebhookEndpointDTO {
   return {
     id: row.id as string,
+    shortId: row.short_id as string,
     name: row.name as string,
     url: row.url as string,
     active: row.active as boolean,
@@ -109,6 +111,21 @@ export async function getWebhookEndpoint(
     .from("outbound_webhook_endpoints")
     .select("*")
     .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error("Falha ao buscar endpoint.");
+  if (!data) return null;
+
+  return mapEndpointRow(data);
+}
+
+export async function getWebhookEndpointByShortId(
+  shortId: string
+): Promise<OutboundWebhookEndpointDTO | null> {
+  const { data, error } = await getSupabaseAdmin()
+    .from("outbound_webhook_endpoints")
+    .select("*")
+    .eq("short_id", shortId)
     .maybeSingle();
 
   if (error) throw new Error("Falha ao buscar endpoint.");

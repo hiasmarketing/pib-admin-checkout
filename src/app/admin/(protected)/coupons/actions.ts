@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
+import { ADMIN_CACHE_TAGS } from "@/lib/admin/cache";
 import { createCoupon, updateCoupon } from "@/lib/catalog/coupons";
 import { ValidationError } from "@/lib/catalog/validation";
 import type { CouponInput } from "@/lib/catalog/types";
@@ -31,12 +32,13 @@ export async function createCouponAction(
 ): Promise<{ error?: string; fieldError?: { field: string; message: string } } | void> {
   await requireOperator();
 
-  let couponId: string;
+  let couponCode: string;
   try {
     const input = extractCouponInput(data);
     const coupon = await createCoupon(input);
     revalidatePath("/admin/coupons");
-    couponId = coupon.id;
+    revalidateTag(ADMIN_CACHE_TAGS.coupons, "default");
+    couponCode = coupon.code;
   } catch (err) {
     if (err instanceof ValidationError) {
       return { fieldError: { field: err.field, message: err.message } };
@@ -44,7 +46,7 @@ export async function createCouponAction(
     if (err instanceof Error) return { error: err.message };
     return { error: "Erro ao criar cupom." };
   }
-  redirect(`/admin/coupons/${couponId}`);
+  redirect(`/admin/coupons/${couponCode}`);
 }
 
 export async function updateCouponAction(
@@ -55,9 +57,10 @@ export async function updateCouponAction(
 
   try {
     const input = extractCouponInput(data);
-    await updateCoupon(couponId, input);
+    const updated = await updateCoupon(couponId, input);
     revalidatePath("/admin/coupons");
-    revalidatePath(`/admin/coupons/${couponId}`);
+    revalidatePath(`/admin/coupons/${updated.code}`);
+    revalidateTag(ADMIN_CACHE_TAGS.coupons, "default");
     return { success: true };
   } catch (err) {
     if (err instanceof ValidationError) {

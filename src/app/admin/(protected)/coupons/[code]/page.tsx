@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
-import { getCoupon } from "@/lib/catalog/coupons";
+import { getCouponByCode } from "@/lib/catalog/coupons";
 import { listTurmas } from "@/lib/catalog/turmas";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -37,19 +37,19 @@ async function listAllProducts(): Promise<ProductDTO[]> {
 export default async function EditCouponPage({
   params,
 }: {
-  params: Promise<{ couponId: string }>;
+  params: Promise<{ code: string }>;
 }) {
   await requireOperator();
-  const { couponId } = await params;
+  const { code } = await params;
   const [coupon, turmas, products] = await Promise.all([
-    getCoupon(couponId),
+    getCouponByCode(code),
     listTurmas(),
     listAllProducts(),
   ]);
 
   if (!coupon) notFound();
 
-  const action = updateCouponAction.bind(null, couponId);
+  const action = updateCouponAction.bind(null, coupon.id);
 
   return (
     <div>

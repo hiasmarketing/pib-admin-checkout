@@ -1,12 +1,14 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
+import { ADMIN_CACHE_TAGS } from "@/lib/admin/cache";
 import {
   createWebhookEndpoint,
   updateWebhookEndpoint,
   retryDelivery,
+  getWebhookEndpoint,
   type OutboundWebhookEventType,
 } from "@/lib/webhooks/outbound";
 
@@ -26,17 +28,18 @@ export async function createEndpointAction(
 ): Promise<{ error?: string } | void> {
   await requireOperator();
 
-  let endpointId: string;
+  let shortId: string;
   try {
     const input = extractEndpointInput(data);
     const endpoint = await createWebhookEndpoint(input);
     revalidatePath("/admin/webhooks");
-    endpointId = endpoint.id;
+    revalidateTag(ADMIN_CACHE_TAGS.webhooks, "default");
+    shortId = endpoint.shortId;
   } catch (err) {
     if (err instanceof Error) return { error: err.message };
     return { error: "Erro ao criar endpoint." };
   }
-  redirect(`/admin/webhooks/${endpointId}`);
+  redirect(`/admin/webhooks/${shortId}`);
 }
 
 export async function updateEndpointAction(
@@ -48,8 +51,10 @@ export async function updateEndpointAction(
   try {
     const input = extractEndpointInput(data);
     await updateWebhookEndpoint(endpointId, input);
+    const endpoint = await getWebhookEndpoint(endpointId);
     revalidatePath("/admin/webhooks");
-    revalidatePath(`/admin/webhooks/${endpointId}`);
+    if (endpoint) revalidatePath(`/admin/webhooks/${endpoint.shortId}`);
+    revalidateTag(ADMIN_CACHE_TAGS.webhooks, "default");
     return { success: true };
   } catch (err) {
     if (err instanceof Error) return { error: err.message };

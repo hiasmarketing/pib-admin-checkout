@@ -3,9 +3,11 @@ import "server-only";
 import { randomBytes } from "crypto";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { AdminRole } from "@/lib/admin/auth";
+import { ADMIN_CACHE_TAGS, cachedAdminQuery } from "./cache";
 
 export interface AdminUserDTO {
   id: string;
+  shortId: string;
   authUserId: string;
   email: string;
   name: string;
@@ -28,6 +30,7 @@ export interface CreateAdminUserResult {
 
 interface AdminUserRow {
   id: string;
+  short_id: string;
   auth_user_id: string;
   email: string;
   name: string;
@@ -60,6 +63,7 @@ const PASSWORD_CHARS =
 function mapAdminUser(row: AdminUserRow): AdminUserDTO {
   return {
     id: row.id,
+    shortId: row.short_id,
     authUserId: row.auth_user_id,
     email: row.email,
     name: row.name,
@@ -109,32 +113,58 @@ function isDuplicateError(error: { code?: string; message?: string } | null): bo
   return error.code === "23505" || message.includes("already") || message.includes("duplicate");
 }
 
-export async function listAdminUsers(): Promise<AdminUserDTO[]> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("admin_users")
-    .select("id, auth_user_id, email, name, role, active, created_at, updated_at")
-    .order("created_at", { ascending: false });
+export const listAdminUsers = cachedAdminQuery(
+  async (): Promise<AdminUserDTO[]> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("admin_users")
+      .select("id, short_id, auth_user_id, email, name, role, active, created_at, updated_at")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    throw new Error("Erro ao listar usuários administrativos.");
-  }
+    if (error) {
+      throw new Error("Erro ao listar usuários administrativos.");
+    }
 
-  return ((data ?? []) as AdminUserRow[]).map(mapAdminUser);
-}
+    return ((data ?? []) as AdminUserRow[]).map(mapAdminUser);
+  },
+  ["admin", "users", "list"],
+  [ADMIN_CACHE_TAGS.users],
+);
 
-export async function getAdminUser(userId: string): Promise<AdminUserDTO | null> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("admin_users")
-    .select("id, auth_user_id, email, name, role, active, created_at, updated_at")
-    .eq("id", userId)
-    .maybeSingle();
+export const getAdminUser = cachedAdminQuery(
+  async (userId: string): Promise<AdminUserDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("admin_users")
+      .select("id, short_id, auth_user_id, email, name, role, active, created_at, updated_at")
+      .eq("id", userId)
+      .maybeSingle();
 
-  if (error) {
-    throw new Error("Erro ao carregar usuário administrativo.");
-  }
+    if (error) {
+      throw new Error("Erro ao carregar usuário administrativo.");
+    }
 
-  return data ? mapAdminUser(data as AdminUserRow) : null;
-}
+    return data ? mapAdminUser(data as AdminUserRow) : null;
+  },
+  ["admin", "users", "byId"],
+  [ADMIN_CACHE_TAGS.users],
+);
+
+export const getAdminUserByShortId = cachedAdminQuery(
+  async (shortId: string): Promise<AdminUserDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("admin_users")
+      .select("id, short_id, auth_user_id, email, name, role, active, created_at, updated_at")
+      .eq("short_id", shortId)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error("Erro ao carregar usuário administrativo.");
+    }
+
+    return data ? mapAdminUser(data as AdminUserRow) : null;
+  },
+  ["admin", "users", "byShortId"],
+  [ADMIN_CACHE_TAGS.users],
+);
 
 export async function createAdminUser(
   input: CreateAdminUserInput
@@ -186,7 +216,7 @@ export async function createAdminUser(
       role,
       active: true,
     })
-    .select("id, auth_user_id, email, name, role, active, created_at, updated_at")
+    .select("id, short_id, auth_user_id, email, name, role, active, created_at, updated_at")
     .single();
 
   if (insertError) {
@@ -223,7 +253,7 @@ export async function updateAdminUserRole(
     .from("admin_users")
     .update({ role })
     .eq("id", userId)
-    .select("id, auth_user_id, email, name, role, active, created_at, updated_at")
+    .select("id, short_id, auth_user_id, email, name, role, active, created_at, updated_at")
     .single();
 
   if (error) {

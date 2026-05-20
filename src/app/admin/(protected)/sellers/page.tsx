@@ -26,7 +26,7 @@ export default async function SellersPage() {
       ) : (
         <div className="space-y-2">
           {sellers.map((seller) => (
-            <Link key={seller.id} href={`/admin/sellers/${seller.id}`} className="block">
+            <Link key={seller.id} href={`/admin/sellers/${seller.slug}`} className="block">
               <div
                 className="rounded-xl border p-4 hover:border-[var(--admin-brand)]/30 transition-colors"
                 style={{ background: "var(--admin-surface)", borderColor: "var(--admin-border)" }}

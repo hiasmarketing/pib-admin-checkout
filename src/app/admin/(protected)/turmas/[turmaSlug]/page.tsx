@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
-import { getTurma } from "@/lib/catalog/turmas";
+import { getTurmaBySlug } from "@/lib/catalog/turmas";
 import { listProducts } from "@/lib/catalog/products";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
@@ -8,25 +8,24 @@ import { AdminStatusChip } from "@/components/admin/AdminStatusChip";
 import Link from "next/link";
 import { EditTurmaForm } from "./EditTurmaForm";
 
-export async function generateMetadata({ params }: { params: Promise<{ turmaId: string }> }) {
-  const { turmaId } = await params;
-  const turma = await getTurma(turmaId);
+export async function generateMetadata({ params }: { params: Promise<{ turmaSlug: string }> }) {
+  const { turmaSlug } = await params;
+  const turma = await getTurmaBySlug(turmaSlug);
   return { title: `${turma?.name ?? "Turma"} — Admin` };
 }
 
 export default async function TurmaDetailPage({
   params,
 }: {
-  params: Promise<{ turmaId: string }>;
+  params: Promise<{ turmaSlug: string }>;
 }) {
   await requireOperator();
-  const { turmaId } = await params;
-  const [turma, products] = await Promise.all([
-    getTurma(turmaId),
-    listProducts(turmaId),
-  ]);
+  const { turmaSlug } = await params;
+  const turma = await getTurmaBySlug(turmaSlug);
 
   if (!turma) notFound();
+
+  const products = await listProducts(turma.id);
 
   return (
     <div>
@@ -48,24 +47,32 @@ export default async function TurmaDetailPage({
           <h2 className="text-base font-semibold" style={{ color: "var(--admin-fg)" }}>
             Produtos
           </h2>
-          <AdminButton href={`/admin/turmas/${turmaId}/products/new`}>
+          <AdminButton href={`/admin/turmas/${turma.slug}/products/new`}>
             + Novo produto
           </AdminButton>
         </div>
 
         {products.length === 0 ? (
           <div
-            className="text-center py-8 rounded-xl border"
+            className="text-center py-8 px-4 rounded-xl border"
             style={{ borderColor: "var(--admin-border)", color: "var(--admin-muted)" }}
           >
             <p className="text-sm">Nenhum produto nesta turma.</p>
+            <p className="text-xs mt-2">
+              Para aparecer no checkout, a turma precisa ter pelo menos um produto ativo com preço.
+            </p>
+            <div className="mt-4">
+              <AdminButton href={`/admin/turmas/${turma.slug}/products/new`}>
+                Criar produto agora
+              </AdminButton>
+            </div>
           </div>
         ) : (
           <div className="space-y-2">
             {products.map((product) => (
               <Link
                 key={product.id}
-                href={`/admin/turmas/${turmaId}/products/${product.id}`}
+                href={`/admin/turmas/${turma.slug}/products/${product.slug}`}
                 className="block"
               >
                 <div

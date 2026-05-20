@@ -1,5 +1,5 @@
-const CHECKOUT_HOST = "checkout.faria-castro.com.br";
-const ADMIN_HOST = "admin.faria-castro.com.br";
+const CHECKOUT_HOST = "checkout.pib.com.br";
+const ADMIN_HOST = "admin.pib.com.br";
 
 function normalizeOrigin(value: string): string | null {
   try {

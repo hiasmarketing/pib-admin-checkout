@@ -374,7 +374,7 @@ export default function PagarmeCheckoutPage() {
   ) {
     setCatalogLoading(true);
     try {
-      const res = await fetch("/api/catalog/options");
+      const res = await fetch("/api/catalog/options", { cache: "no-store" });
       if (!res.ok) return;
       const data = (await res.json()) as { options?: TurmaOption[] };
       const options = data.options ?? [];
@@ -861,7 +861,13 @@ export default function PagarmeCheckoutPage() {
             <h2 className="text-[#2b3674] font-sora font-bold text-lg text-center mb-4">
               Selecione a sua turma
             </h2>
-            {turmaOptions.length > 1 ? (
+            {turmaOptions.length === 0 ? (
+              <div className="rounded-2xl border border-[#e0e5f2] bg-[#f8faff] px-6 py-5 text-center">
+                <p className="font-inter text-sm font-semibold text-[#2b3674] md:text-base">
+                  Nenhuma turma com ingresso disponível no momento.
+                </p>
+              </div>
+            ) : turmaOptions.length > 1 ? (
               <div className="min-h-[56px] rounded-2xl border border-[#0077ff]/40 bg-white px-6 py-4">
                 <select
                   value={selectedTurmaId ?? ""}
@@ -974,7 +980,7 @@ export default function PagarmeCheckoutPage() {
           {quote?.coupon && (
             <p
               className={`-mt-3 font-inter text-sm ${
-                quote.coupon.applied ? "text-green-400" : "text-red-300"
+                quote.coupon.applied ? "text-green-600" : "text-red-600"
               }`}
             >
               {quote.coupon.applied
@@ -1089,7 +1095,7 @@ export default function PagarmeCheckoutPage() {
               </div>
 
               {!PAGARME_PUBLIC_KEY && (
-                <p className="font-inter text-sm text-red-300" role="alert">
+                <p className="font-inter text-sm text-red-600" role="alert">
                   Chave pública do pagar.me não configurada.
                 </p>
               )}
@@ -1139,7 +1145,7 @@ export default function PagarmeCheckoutPage() {
               )}
 
               {error && (
-                <p className="font-inter text-sm text-red-300" role="alert">
+                <p className="font-inter text-sm text-red-600" role="alert">
                   {error}
                 </p>
               )}
@@ -1249,7 +1255,7 @@ export default function PagarmeCheckoutPage() {
               )}
 
               {error && (
-                <p className="font-inter text-sm text-red-300" role="alert">
+                <p className="font-inter text-sm text-red-600" role="alert">
                   {error}
                 </p>
               )}

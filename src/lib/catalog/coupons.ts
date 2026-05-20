@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { ADMIN_CACHE_TAGS, cachedAdminQuery } from "@/lib/admin/cache";
 import { validateCouponInput, ValidationError } from "./validation";
 import type { CouponDTO, CouponInput } from "./types";
 
@@ -53,39 +54,66 @@ async function loadScopes(
   };
 }
 
-export async function listCoupons(): Promise<CouponDTO[]> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("coupons")
-    .select("*")
-    .order("created_at", { ascending: false });
+export const listCoupons = cachedAdminQuery(
+  async (): Promise<CouponDTO[]> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("coupons")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  if (error) throw new Error("Falha ao listar cupons.");
+    if (error) throw new Error("Falha ao listar cupons.");
 
-  const rows = data ?? [];
-  const dtos = await Promise.all(
-    rows.map(async (row) => {
-      const { turmaIds, productIds } = await loadScopes(row.id as string);
-      return mapRow(row, turmaIds, productIds);
-    })
-  );
+    const rows = data ?? [];
+    const dtos = await Promise.all(
+      rows.map(async (row) => {
+        const { turmaIds, productIds } = await loadScopes(row.id as string);
+        return mapRow(row, turmaIds, productIds);
+      })
+    );
 
-  return dtos;
-}
+    return dtos;
+  },
+  ["catalog", "coupons", "list"],
+  [ADMIN_CACHE_TAGS.coupons],
+);
 
-export async function getCoupon(id: string): Promise<CouponDTO | null> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("coupons")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+export const getCoupon = cachedAdminQuery(
+  async (id: string): Promise<CouponDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("coupons")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error) throw new Error("Falha ao buscar cupom.");
+    if (error) throw new Error("Falha ao buscar cupom.");
 
-  if (!data) return null;
+    if (!data) return null;
 
-  const { turmaIds, productIds } = await loadScopes(id);
-  return mapRow(data, turmaIds, productIds);
-}
+    const { turmaIds, productIds } = await loadScopes(id);
+    return mapRow(data, turmaIds, productIds);
+  },
+  ["catalog", "coupons", "byId"],
+  [ADMIN_CACHE_TAGS.coupons],
+);
+
+export const getCouponByCode = cachedAdminQuery(
+  async (code: string): Promise<CouponDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("coupons")
+      .select("*")
+      .eq("code", code.toUpperCase())
+      .maybeSingle();
+
+    if (error) throw new Error("Falha ao buscar cupom.");
+
+    if (!data) return null;
+
+    const { turmaIds, productIds } = await loadScopes(data.id as string);
+    return mapRow(data, turmaIds, productIds);
+  },
+  ["catalog", "coupons", "byCode"],
+  [ADMIN_CACHE_TAGS.coupons],
+);
 
 async function upsertScopes(
   couponId: string,

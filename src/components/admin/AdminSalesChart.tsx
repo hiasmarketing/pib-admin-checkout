@@ -79,7 +79,7 @@ export function AdminSalesChart({ data }: Props) {
           width={70}
         />
         <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--admin-surface-elevated)" }} />
-        <Bar dataKey="revenue" fill="#f318ff" radius={[4, 4, 0, 0]} maxBarSize={40} />
+        <Bar dataKey="revenue" fill="#0077ff" radius={[4, 4, 0, 0]} maxBarSize={40} />
       </BarChart>
     </ResponsiveContainer>
   );

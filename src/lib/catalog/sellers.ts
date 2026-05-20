@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { ADMIN_CACHE_TAGS, cachedAdminQuery } from "@/lib/admin/cache";
 import { validateSellerInput, ValidationError } from "./validation";
 import type { SellerDTO, SellerInput, ResolvedSeller } from "./types";
 
@@ -50,36 +51,62 @@ async function loadScopes(
   };
 }
 
-export async function listSellers(): Promise<SellerDTO[]> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("sellers")
-    .select("*")
-    .order("created_at", { ascending: false });
+export const listSellers = cachedAdminQuery(
+  async (): Promise<SellerDTO[]> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("sellers")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  if (error) throw new Error("Falha ao listar vendedores.");
+    if (error) throw new Error("Falha ao listar vendedores.");
 
-  const rows = data ?? [];
-  return Promise.all(
-    rows.map(async (row) => {
-      const { turmaIds, productIds } = await loadScopes(row.id as string);
-      return mapRow(row, turmaIds, productIds);
-    })
-  );
-}
+    const rows = data ?? [];
+    return Promise.all(
+      rows.map(async (row) => {
+        const { turmaIds, productIds } = await loadScopes(row.id as string);
+        return mapRow(row, turmaIds, productIds);
+      })
+    );
+  },
+  ["catalog", "sellers", "list"],
+  [ADMIN_CACHE_TAGS.sellers],
+);
 
-export async function getSeller(id: string): Promise<SellerDTO | null> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("sellers")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+export const getSeller = cachedAdminQuery(
+  async (id: string): Promise<SellerDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("sellers")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error) throw new Error("Falha ao buscar vendedor.");
-  if (!data) return null;
+    if (error) throw new Error("Falha ao buscar vendedor.");
+    if (!data) return null;
 
-  const { turmaIds, productIds } = await loadScopes(id);
-  return mapRow(data, turmaIds, productIds);
-}
+    const { turmaIds, productIds } = await loadScopes(id);
+    return mapRow(data, turmaIds, productIds);
+  },
+  ["catalog", "sellers", "byId"],
+  [ADMIN_CACHE_TAGS.sellers],
+);
+
+export const getSellerBySlug = cachedAdminQuery(
+  async (slug: string): Promise<SellerDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("sellers")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) throw new Error("Falha ao buscar vendedor.");
+    if (!data) return null;
+
+    const { turmaIds, productIds } = await loadScopes(data.id as string);
+    return mapRow(data, turmaIds, productIds);
+  },
+  ["catalog", "sellers", "bySlug"],
+  [ADMIN_CACHE_TAGS.sellers],
+);
 
 async function upsertScopes(
   sellerId: string,

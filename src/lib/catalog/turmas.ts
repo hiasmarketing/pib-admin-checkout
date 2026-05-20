@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { ADMIN_CACHE_TAGS, cachedAdminQuery } from "@/lib/admin/cache";
 import { validateTurmaInput, ValidationError } from "./validation";
 import type { TurmaDTO, TurmaInput } from "./types";
 
@@ -20,28 +21,52 @@ function mapRow(row: Record<string, unknown>): TurmaDTO {
   };
 }
 
-export async function listTurmas(): Promise<TurmaDTO[]> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("turmas")
-    .select("*")
-    .order("created_at", { ascending: false });
+export const listTurmas = cachedAdminQuery(
+  async (): Promise<TurmaDTO[]> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("turmas")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  if (error) throw new Error("Falha ao listar turmas.");
+    if (error) throw new Error("Falha ao listar turmas.");
 
-  return (data ?? []).map(mapRow);
-}
+    return (data ?? []).map(mapRow);
+  },
+  ["catalog", "turmas", "list"],
+  [ADMIN_CACHE_TAGS.turmas],
+);
 
-export async function getTurma(id: string): Promise<TurmaDTO | null> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("turmas")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+export const getTurma = cachedAdminQuery(
+  async (id: string): Promise<TurmaDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("turmas")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error) throw new Error("Falha ao buscar turma.");
+    if (error) throw new Error("Falha ao buscar turma.");
 
-  return data ? mapRow(data) : null;
-}
+    return data ? mapRow(data) : null;
+  },
+  ["catalog", "turmas", "byId"],
+  [ADMIN_CACHE_TAGS.turmas],
+);
+
+export const getTurmaBySlug = cachedAdminQuery(
+  async (slug: string): Promise<TurmaDTO | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("turmas")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) throw new Error("Falha ao buscar turma.");
+
+    return data ? mapRow(data) : null;
+  },
+  ["catalog", "turmas", "bySlug"],
+  [ADMIN_CACHE_TAGS.turmas],
+);
 
 export async function createTurma(input: TurmaInput): Promise<TurmaDTO> {
   validateTurmaInput(input);

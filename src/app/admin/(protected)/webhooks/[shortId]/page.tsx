@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
-import { getWebhookEndpoint } from "@/lib/webhooks/outbound";
+import { getWebhookEndpointByShortId } from "@/lib/webhooks/outbound";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminButton } from "@/components/admin/AdminButton";
 import { WebhookEndpointForm } from "../WebhookEndpointForm";
@@ -8,14 +8,14 @@ import { updateEndpointAction } from "../actions";
 
 export const metadata = { title: "Editar Webhook — Admin" };
 
-export default async function EditWebhookPage({ params }: { params: Promise<{ endpointId: string }> }) {
+export default async function EditWebhookPage({ params }: { params: Promise<{ shortId: string }> }) {
   await requireOperator();
-  const { endpointId } = await params;
-  const endpoint = await getWebhookEndpoint(endpointId);
+  const { shortId } = await params;
+  const endpoint = await getWebhookEndpointByShortId(shortId);
 
   if (!endpoint) notFound();
 
-  const action = updateEndpointAction.bind(null, endpointId);
+  const action = updateEndpointAction.bind(null, endpoint.id);
 
   return (
     <div>

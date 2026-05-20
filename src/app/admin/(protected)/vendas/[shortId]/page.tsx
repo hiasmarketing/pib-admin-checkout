@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
-import { getOrder } from "@/lib/admin/orders";
+import { getOrderByShortId } from "@/lib/admin/orders";
 import { getPagarmeFailureReason } from "@/lib/payments/failures";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminCard } from "@/components/admin/AdminCard";
@@ -51,12 +51,12 @@ const STATUS_CHIP_MAP: Record<string, "paid" | "pending" | "failed" | "inactive"
 export default async function VendaDetailPage({
   params,
 }: {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ shortId: string }>;
 }) {
   await requireOperator();
 
-  const { orderId } = await params;
-  const order = await getOrder(orderId);
+  const { shortId } = await params;
+  const order = await getOrderByShortId(shortId);
   if (!order) notFound();
 
   const lead = order.lead;

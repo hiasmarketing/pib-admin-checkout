@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
-import { getSeller } from "@/lib/catalog/sellers";
+import { getSellerBySlug } from "@/lib/catalog/sellers";
 import { listTurmas } from "@/lib/catalog/turmas";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getCheckoutOrigin } from "@/lib/public-urls";
@@ -27,14 +27,15 @@ async function listAllProducts(): Promise<ProductDTO[]> {
   })) as ProductDTO[];
 }
 
-export default async function EditSellerPage({ params }: { params: Promise<{ sellerId: string }> }) {
+export default async function EditSellerPage({ params }: { params: Promise<{ sellerSlug: string }> }) {
   await requireOperator();
-  const { sellerId } = await params;
-  const [seller, turmas, products] = await Promise.all([getSeller(sellerId), listTurmas(), listAllProducts()]);
-
+  const { sellerSlug } = await params;
+  const seller = await getSellerBySlug(sellerSlug);
   if (!seller) notFound();
 
-  const action = updateSellerAction.bind(null, sellerId);
+  const [turmas, products] = await Promise.all([listTurmas(), listAllProducts()]);
+
+  const action = updateSellerAction.bind(null, seller.id);
   const origin = getCheckoutOrigin();
   const sellerLink = `${origin}/formulario?seller_slug=${encodeURIComponent(seller.slug)}`;
 

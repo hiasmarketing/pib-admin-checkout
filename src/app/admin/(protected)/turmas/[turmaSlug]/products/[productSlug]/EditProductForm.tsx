@@ -2,14 +2,15 @@
 
 import { ProductForm } from "../ProductForm";
 import { updateProductAction } from "../actions";
-import type { ProductDTO } from "@/lib/catalog/types";
+import type { ProductDTO, TurmaDTO } from "@/lib/catalog/types";
 
-export function EditProductForm({ product }: { product: ProductDTO }) {
+export function EditProductForm({ product, turma }: { product: ProductDTO; turma: TurmaDTO }) {
   const action = updateProductAction.bind(null, product.id);
 
   return (
     <ProductForm
       turmaId={product.turmaId}
+      turmaSlug={turma.slug}
       defaultValues={{
         name: product.name,
         slug: product.slug,

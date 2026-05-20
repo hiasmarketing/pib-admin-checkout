@@ -7,6 +7,7 @@ import {
 } from "@/lib/timezone";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getLeadMetrics, periodToDates, type Period } from "./leads";
+import { ADMIN_CACHE_TAGS, cachedAdminQuery } from "./cache";
 
 const PAGE_SIZE = 50;
 
@@ -19,6 +20,7 @@ export type OrderStatus =
 
 export type OrderRow = {
   id: string;
+  short_id: string;
   status: OrderStatus;
   payment_method: string;
   quantity: number;
@@ -48,7 +50,13 @@ export type OrderRow = {
   };
 };
 
-export async function listOrders(params: {
+export const listOrders = cachedAdminQuery(
+  _listOrdersImpl,
+  ["admin", "orders", "list"],
+  [ADMIN_CACHE_TAGS.orders],
+);
+
+async function _listOrdersImpl(params: {
   page?: number;
   q?: string;
   seller?: string;
@@ -95,20 +103,47 @@ export async function listOrders(params: {
   return { orders, total: count ?? 0 };
 }
 
-export async function getOrder(id: string): Promise<OrderRow | null> {
-  const { data, error } = await getSupabaseAdmin()
-    .from("orders")
-    .select(
-      "*, lead:leads(name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term)"
-    )
-    .eq("id", id)
-    .maybeSingle();
+export const getOrder = cachedAdminQuery(
+  async (id: string): Promise<OrderRow | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("orders")
+      .select(
+        "*, lead:leads(name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term)"
+      )
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error) throw new Error("Falha ao buscar order.");
-  return data as OrderRow | null;
-}
+    if (error) throw new Error("Falha ao buscar order.");
+    return data as OrderRow | null;
+  },
+  ["admin", "orders", "byId"],
+  [ADMIN_CACHE_TAGS.orders],
+);
 
-export async function getOrderMetrics(period: Period): Promise<{
+export const getOrderByShortId = cachedAdminQuery(
+  async (shortId: string): Promise<OrderRow | null> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("orders")
+      .select(
+        "*, lead:leads(name, email, phone, utm_source, utm_medium, utm_campaign, utm_content, utm_term)"
+      )
+      .eq("short_id", shortId)
+      .maybeSingle();
+
+    if (error) throw new Error("Falha ao buscar order.");
+    return data as OrderRow | null;
+  },
+  ["admin", "orders", "byShortId"],
+  [ADMIN_CACHE_TAGS.orders],
+);
+
+export const getOrderMetrics = cachedAdminQuery(
+  _getOrderMetricsImpl,
+  ["admin", "orders", "metrics"],
+  [ADMIN_CACHE_TAGS.orders, ADMIN_CACHE_TAGS.leads],
+);
+
+async function _getOrderMetricsImpl(period: Period): Promise<{
   totalPaid: number;
   revenue: number;
   conversionRate: number;
@@ -149,7 +184,13 @@ export type OrderChartRow = {
   utm_content: string | null;
 };
 
-export async function getRawOrdersForChart(
+export const getRawOrdersForChart = cachedAdminQuery(
+  _getRawOrdersForChartImpl,
+  ["admin", "orders", "chart"],
+  [ADMIN_CACHE_TAGS.orders, ADMIN_CACHE_TAGS.leads],
+);
+
+async function _getRawOrdersForChartImpl(
   period: Period
 ): Promise<OrderChartRow[]> {
   const { from, to } = periodToDates(period);
@@ -190,7 +231,13 @@ export async function getRawOrdersForChart(
     }));
 }
 
-export async function getOrdersDailyChart(
+export const getOrdersDailyChart = cachedAdminQuery(
+  _getOrdersDailyChartImpl,
+  ["admin", "orders", "dailyChart"],
+  [ADMIN_CACHE_TAGS.orders],
+);
+
+async function _getOrdersDailyChartImpl(
   period: Period
 ): Promise<Array<{ date: string; revenue: number; count: number }>> {
   const { from, to } = periodToDates(period);

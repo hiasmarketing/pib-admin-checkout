@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireOperator } from "@/lib/admin/auth";
-import { getLead } from "@/lib/admin/leads";
+import { getLeadByShortId } from "@/lib/admin/leads";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminCard } from "@/components/admin/AdminCard";
@@ -32,6 +32,7 @@ function InfoRow({ label, value }: { label: string; value: string | null | undef
 
 type OrderRowSimple = {
   id: string;
+  short_id: string;
   status: string;
   total_amount_cents: number;
   product_name: string | null;
@@ -41,18 +42,18 @@ type OrderRowSimple = {
 export default async function LeadDetailPage({
   params,
 }: {
-  params: Promise<{ leadId: string }>;
+  params: Promise<{ shortId: string }>;
 }) {
   await requireOperator();
 
-  const { leadId } = await params;
-  const lead = await getLead(leadId);
+  const { shortId } = await params;
+  const lead = await getLeadByShortId(shortId);
   if (!lead) notFound();
 
   const { data: ordersData } = await getSupabaseAdmin()
     .from("orders")
-    .select("id, status, total_amount_cents, product_name, created_at")
-    .eq("lead_id", leadId)
+    .select("id, short_id, status, total_amount_cents, product_name, created_at")
+    .eq("lead_id", lead.id)
     .order("created_at", { ascending: false });
 
   const orders = (ordersData ?? []) as OrderRowSimple[];
@@ -114,7 +115,7 @@ export default async function LeadDetailPage({
               {orders.map((order) => (
                 <Link
                   key={order.id}
-                  href={`/admin/vendas/${order.id}`}
+                  href={`/admin/vendas/${order.short_id}`}
                   className="flex items-center justify-between p-3 rounded-lg border hover:border-[var(--admin-brand)]/30 transition-colors"
                   style={{ borderColor: "var(--admin-border)" }}
                 >

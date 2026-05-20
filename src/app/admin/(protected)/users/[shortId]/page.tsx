@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/auth";
-import { getAdminUser } from "@/lib/admin/users";
+import { getAdminUserByShortId } from "@/lib/admin/users";
 import { AdminButton } from "@/components/admin/AdminButton";
 import { AdminCard } from "@/components/admin/AdminCard";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -19,11 +19,11 @@ function formatDate(date: string): string {
 export default async function AdminUserDetailPage({
   params,
 }: {
-  params: Promise<{ userId: string }>;
+  params: Promise<{ shortId: string }>;
 }) {
   await requireAdmin();
-  const { userId } = await params;
-  const user = await getAdminUser(userId);
+  const { shortId } = await params;
+  const user = await getAdminUserByShortId(shortId);
 
   if (!user) notFound();
 

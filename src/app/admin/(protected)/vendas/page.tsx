@@ -112,12 +112,12 @@ export default async function VendasPage({
                     style={{ borderColor: "var(--admin-border)" }}
                   >
                     <td className="py-3 px-4" style={{ color: "var(--admin-muted)" }}>
-                      <Link href={`/admin/vendas/${order.id}`} className="block">
+                      <Link href={`/admin/vendas/${order.short_id}`} className="block">
                         {formatDate(order.created_at)}
                       </Link>
                     </td>
                     <td className="py-3 px-4">
-                      <Link href={`/admin/vendas/${order.id}`} className="block">
+                      <Link href={`/admin/vendas/${order.short_id}`} className="block">
                         <div style={{ color: "var(--admin-fg)" }}>{order.product_name ?? "—"}</div>
                         {order.turma_name && (
                           <div className="text-xs" style={{ color: "var(--admin-muted)" }}>{order.turma_name}</div>
@@ -125,23 +125,23 @@ export default async function VendasPage({
                       </Link>
                     </td>
                     <td className="py-3 px-4 hidden md:table-cell">
-                      <Link href={`/admin/vendas/${order.id}`} className="block">
+                      <Link href={`/admin/vendas/${order.short_id}`} className="block">
                         <div style={{ color: "var(--admin-fg)" }}>{order.lead?.name ?? "—"}</div>
                         <div className="text-xs" style={{ color: "var(--admin-muted)" }}>{order.lead?.email ?? ""}</div>
                       </Link>
                     </td>
                     <td className="py-3 px-4 hidden lg:table-cell" style={{ color: "var(--admin-muted)" }}>
-                      <Link href={`/admin/vendas/${order.id}`} className="block">
+                      <Link href={`/admin/vendas/${order.short_id}`} className="block">
                         {order.seller_name_snapshot ?? "—"}
                       </Link>
                     </td>
                     <td className="py-3 px-4">
-                      <Link href={`/admin/vendas/${order.id}`} className="block">
+                      <Link href={`/admin/vendas/${order.short_id}`} className="block">
                         <AdminStatusChip status={STATUS_CHIP_MAP[order.status] ?? "inactive"} />
                       </Link>
                     </td>
                     <td className="py-3 px-4 font-medium" style={{ color: "var(--admin-fg)" }}>
-                      <Link href={`/admin/vendas/${order.id}`} className="block">
+                      <Link href={`/admin/vendas/${order.short_id}`} className="block">
                         {formatAmount(order.total_amount_cents)}
                       </Link>
                     </td>

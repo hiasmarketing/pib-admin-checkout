@@ -1,9 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
+import { ADMIN_CACHE_TAGS } from "@/lib/admin/cache";
 import { createProduct, updateProduct } from "@/lib/catalog/products";
+import { getTurma } from "@/lib/catalog/turmas";
 import { ValidationError } from "@/lib/catalog/validation";
 import type {
   ProductInput,
@@ -95,8 +97,12 @@ export async function createProductAction(
   try {
     const input = extractProductInput(data);
     const product = await createProduct(input);
-    revalidatePath(`/admin/turmas/${input.turmaId}`);
-    redirectPath = `/admin/turmas/${input.turmaId}/products/${product.id}`;
+    const turma = await getTurma(input.turmaId);
+    if (!turma) throw new Error("Turma não encontrada.");
+    revalidatePath(`/admin/turmas/${turma.slug}`);
+    revalidatePath("/api/catalog/options");
+    revalidateTag(ADMIN_CACHE_TAGS.products, "default");
+    redirectPath = `/admin/turmas/${turma.slug}/products/${product.slug}`;
   } catch (err) {
     if (err instanceof ValidationError) {
       return { fieldError: { field: err.field, message: err.message } };
@@ -117,9 +123,14 @@ export async function updateProductAction(
 
   try {
     const input = extractProductInput(data);
-    await updateProduct(productId, input);
-    revalidatePath(`/admin/turmas/${input.turmaId}`);
-    revalidatePath(`/admin/turmas/${input.turmaId}/products/${productId}`);
+    const updated = await updateProduct(productId, input);
+    const turma = await getTurma(input.turmaId);
+    if (turma) {
+      revalidatePath(`/admin/turmas/${turma.slug}`);
+      revalidatePath(`/admin/turmas/${turma.slug}/products/${updated.slug}`);
+    }
+    revalidatePath("/api/catalog/options");
+    revalidateTag(ADMIN_CACHE_TAGS.products, "default");
     return { success: true };
   } catch (err) {
     if (err instanceof ValidationError) {
