@@ -115,8 +115,8 @@ export function AdminSidebar({ operator }: { operator: AdminShellOperator }) {
         style={{ borderColor: "var(--admin-border)" }}
       >
         <Image
-          src="/images/logo-destiny.png"
-          alt="Método Destiny"
+          src="/images/logo-pib.png"
+          alt="PIB — Faria e Castro"
           width={140}
           height={48}
           style={{ filter: "var(--logo-filter)", objectFit: "contain" }}

@@ -12,11 +12,7 @@ import type {
 function normalizePaymentMethods(value: unknown): PaymentMethodType[] {
   const methods = Array.isArray(value) ? value : ["card"];
   const normalized = methods.filter(
-    (method): method is PaymentMethodType =>
-      method === "card" ||
-      method === "pix" ||
-      method === "klarna" ||
-      method === "afterpay_clearpay"
+    (method): method is PaymentMethodType => method === "card" || method === "pix"
   );
 
   return normalized.length > 0 ? normalized : ["card"];
@@ -45,7 +41,7 @@ function mapRow(row: Record<string, unknown>): ProductDTO {
     slug: row.slug as string,
     description: (row.description as string | null) ?? null,
     unitAmountCents: row.unit_amount_cents as number,
-    currency: (row.currency as string) === "usd" ? "usd" : "brl",
+    currency: "brl",
     maxQuantity: row.max_quantity as number,
     active: row.active as boolean,
     isDefault: row.is_default as boolean,

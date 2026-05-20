@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CheckoutLayout,
@@ -20,7 +20,6 @@ import {
 
 function FormularioContent() {
   const t = useTranslations("formulario");
-  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -32,11 +31,6 @@ function FormularioContent() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
-  function localizedPath(path: `/${string}`) {
-    if (locale === "en") return `/en${path}`;
-    return process.env.NODE_ENV === "development" ? `/pt${path}` : path;
-  }
 
   useEffect(() => {
     const trackingData = captureTrackingFromParams(searchParams);
@@ -91,15 +85,15 @@ function FormularioContent() {
         return;
       }
 
-      sessionStorage.setItem("destiny_lead_id", data.leadId);
+      sessionStorage.setItem("pib_lead_id", data.leadId);
       const contact = {
         name: name.trim(),
         email: email.trim(),
         phone: phoneInternational,
       };
-      sessionStorage.setItem("destiny_contact", JSON.stringify(contact));
-      sessionStorage.setItem("destiny_lead_contact", JSON.stringify(contact));
-      router.push(localizedPath("/checkout"));
+      sessionStorage.setItem("pib_contact", JSON.stringify(contact));
+      sessionStorage.setItem("pib_lead_contact", JSON.stringify(contact));
+      router.push("/checkout");
     } catch {
       setSubmitError(t("saveError"));
     } finally {

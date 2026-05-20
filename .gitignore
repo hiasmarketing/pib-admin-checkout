@@ -56,4 +56,12 @@ supabase/.temp/
 
 # npm lockfile (using pnpm)
 package-lock.json
-CLAUDE.md 
+CLAUDE.md
+pedro/**
+
+# Playwright artifacts
+test-results/
+playwright-report/
+
+# Local codex state
+.codex/

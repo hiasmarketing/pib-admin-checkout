@@ -38,8 +38,8 @@ export function AdminMobileNav({ operator }: { operator: AdminShellOperator }) {
       >
         <div className="flex items-center">
           <Image
-            src="/images/logo-destiny.png"
-            alt="Método Destiny"
+            src="/images/logo-pib.png"
+            alt="PIB — Faria e Castro"
             width={618}
             height={384}
             style={{ filter: "var(--logo-filter)", width: "auto", height: "46px" }}
@@ -79,8 +79,8 @@ export function AdminMobileNav({ operator }: { operator: AdminShellOperator }) {
           >
             <div className="flex items-center justify-between px-4 h-16 border-b flex-shrink-0" style={{ borderColor: "var(--admin-border)" }}>
               <Image
-                src="/images/logo-destiny.png"
-                alt="Método Destiny"
+                src="/images/logo-pib.png"
+                alt="PIB — Faria e Castro"
                 width={618}
                 height={384}
                 style={{ filter: "var(--logo-filter)", width: "auto", height: "46px" }}

@@ -8,9 +8,7 @@ import { applyInstallmentInterest } from "@/lib/catalog/installments";
 import { resolveSeller } from "@/lib/catalog/sellers";
 import type { CatalogSelection } from "@/lib/catalog/types";
 import { getPagarmeEnv } from "@/lib/env";
-import { getUsdBrlRate } from "@/lib/fx/exchange-rate";
 import { hasClientPricingOverride } from "@/lib/payments/security";
-import { enqueuePipedriveSyncJob } from "@/lib/pipedrive/jobs";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   enqueuePurchaseApprovedWebhook,
@@ -123,10 +121,6 @@ function normalizeBrazilPhone(value: unknown) {
   };
 }
 
-function convertAmountCents(amountCents: number, exchangeRate: number | null) {
-  return exchangeRate ? Math.ceil(amountCents * exchangeRate) : amountCents;
-}
-
 function getPagarmeTurmaMetadata(turma: {
   name: string;
   startsAt: string | null;
@@ -192,7 +186,7 @@ async function createPagarmeOrder(body: Record<string, unknown>) {
         "base64"
       )}`,
       "Content-Type": "application/json",
-      "User-Agent": "admin-destiny/1.0",
+      "User-Agent": "pib-checkout/1.0",
     },
     body: JSON.stringify(body),
     cache: "no-store",
@@ -329,41 +323,17 @@ export async function POST(request: Request) {
     );
   }
 
-  let exchangeRate: number | null = null;
-  try {
-    exchangeRate = pricing.currency === "usd" ? await getUsdBrlRate() : null;
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Erro ao calcular cotação.";
-    return jsonError(message, 503);
-  }
-
-  const chargedSubtotalAmountCents = convertAmountCents(
-    pricing.subtotalAmountCents,
-    exchangeRate
-  );
-  const chargedDiscountAmountCents = Math.min(
-    convertAmountCents(pricing.discountAmountCents, exchangeRate),
-    chargedSubtotalAmountCents
-  );
-  const chargedAmountCents = convertAmountCents(
-    pricing.totalAmountCents,
-    exchangeRate
-  );
   const installmentRatePct =
     paymentMethod === "credit_card"
       ? resolved.product.installmentRates[String(pricing.installmentCount)] ?? null
       : null;
   const installmentResult = applyInstallmentInterest(
-    chargedAmountCents,
+    pricing.totalAmountCents,
     pricing.installmentCount,
     installmentRatePct
   );
   const pagarmeAmountCents =
-    paymentMethod === "pix" ? chargedAmountCents : installmentResult.totalCents;
-  const chargedUnitAmountCents = Math.ceil(
-    chargedSubtotalAmountCents / pricing.quantity
-  );
+    paymentMethod === "pix" ? pricing.totalAmountCents : installmentResult.totalCents;
 
   const orderInsert = {
     lead_id: lead.id,
@@ -371,9 +341,9 @@ export async function POST(request: Request) {
     payment_method: productPaymentMethod,
     quantity: pricing.quantity,
     installment_count: pricing.installmentCount,
-    unit_amount_cents: chargedUnitAmountCents,
-    subtotal_amount_cents: chargedSubtotalAmountCents,
-    discount_amount_cents: chargedDiscountAmountCents,
+    unit_amount_cents: Math.ceil(pricing.subtotalAmountCents / pricing.quantity),
+    subtotal_amount_cents: pricing.subtotalAmountCents,
+    discount_amount_cents: pricing.discountAmountCents,
     total_amount_cents: pagarmeAmountCents,
     currency: "brl",
     coupon_code: couponCode,
@@ -392,9 +362,6 @@ export async function POST(request: Request) {
     seller_id_snapshot: sellerRecord?.sellerId ?? null,
     seller_slug_snapshot: sellerRecord?.slug ?? null,
     seller_name_snapshot: sellerRecord?.name ?? null,
-    base_currency: pricing.currency,
-    base_total_amount_cents: pricing.totalAmountCents,
-    exchange_rate: exchangeRate,
     installment_rate_pct:
       paymentMethod === "credit_card" ? installmentResult.interestRatePct : null,
     installment_amount_cents:
@@ -414,20 +381,9 @@ export async function POST(request: Request) {
     return jsonError("Não foi possível criar o pedido agora.", 500);
   }
 
-  try {
-    await enqueuePipedriveSyncJob({
-      type: "order.created",
-      aggregateType: "order",
-      aggregateId: order.id,
-      payload: { source: "pagarme", paymentMethod },
-    });
-  } catch (err) {
-    console.error("Failed to enqueue Pipedrive pagar.me order sync", err);
-  }
-
   const customerPhone = normalizeBrazilPhone(lead.phone);
   const customer: Record<string, unknown> = {
-    name: optionalString(lead.name) ?? "Cliente Destiny",
+    name: optionalString(lead.name) ?? "Cliente PIB",
     email: optionalString(lead.email) ?? "",
     type: cpfCnpj.length === 14 ? "company" : "individual",
     document: cpfCnpj,
@@ -541,12 +497,6 @@ export async function POST(request: Request) {
     }
 
     try {
-      await enqueuePipedriveSyncJob({
-        type: "order.paid",
-        aggregateType: "order",
-        aggregateId: order.id,
-        payload: { source: "pagarme", pagarmeOrderId, pagarmeChargeId },
-      });
       await enqueuePurchaseApprovedWebhook({
         orderId: order.id,
         order: updatedOrder,

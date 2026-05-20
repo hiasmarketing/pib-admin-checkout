@@ -14,7 +14,7 @@ interface PaymentStatusIndicatorProps {
   /**
    * Mostrar label de texto abaixo do ícone.
    * Passe `false` quando a mensagem for renderizada externamente
-   * (ex: lookup de stripeErrors[code] via next-intl).
+   * (ex: lookup de pagarmeErrors[code] via next-intl).
    */
   showLabel?: boolean;
   /** Textos customizados (ignorados se showLabel={false}) */

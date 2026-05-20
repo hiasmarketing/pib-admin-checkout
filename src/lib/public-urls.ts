@@ -1,5 +1,5 @@
-const CHECKOUT_HOST = "checkout.metododestiny.com.br";
-const ADMIN_HOST = "admin.metododestiny.com.br";
+const CHECKOUT_HOST = "checkout.faria-castro.com.br";
+const ADMIN_HOST = "admin.faria-castro.com.br";
 
 function normalizeOrigin(value: string): string | null {
   try {
@@ -45,11 +45,10 @@ export function getAdminOrigin(): string {
 
 export function getRootRedirectPath(params: {
   host: string | null | undefined;
-  locale?: string;
 }): string {
   if (isAdminHost(params.host)) {
     return "/admin";
   }
 
-  return params.locale === "en" ? "/en/formulario" : "/formulario";
+  return "/formulario";
 }

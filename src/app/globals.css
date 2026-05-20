@@ -2,20 +2,28 @@
 
 html,
 body {
-  background: #000;
+  background: #fff;
+  color: #2b3674;
 }
 
 @theme inline {
-  --color-brand: #f318ff;
-  --color-brand-dark: #c913dd;
-  --color-step-inactive: #252525;
-
-  --color-brand-cta: rgb(197, 20, 221);
+  /* Tokens PIB extraídos do Figma (a1Mvm1oTwHCmyFf0ZYR6rW) */
+  --color-brand: #0077ff;
+  --color-brand-dark: #0066dd;
+  --color-brand-cta: #0077ff;
+  --color-pib-primary: #12372a;
+  --color-pib-label: #2b3674;
+  --color-pib-muted: #a3aed0;
+  --color-pib-border: #e0e5f2;
+  --color-pib-surface: #efefef;
+  --color-pib-border-strong: #c7c7c7;
+  --color-step-inactive: #e0e5f2;
 
   --font-inter: var(--font-inter-var);
   --font-sora: var(--font-sora-var);
   --font-rethink-sans: var(--font-rethink-sans-var);
   --font-dm-sans: var(--font-dm-sans-var);
+  --font-montserrat: var(--font-inter-var);
 }
 
 @keyframes landingTickerUp {

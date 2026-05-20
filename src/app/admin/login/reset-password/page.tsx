@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/ssr";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 import "../../admin.css";
 
-export const metadata = { title: "Nova senha — Admin Método Destiny" };
+export const metadata = { title: "Nova senha — Admin PIB — Faria e Castro" };
 
 export default async function ResetPasswordPage() {
   const supabase = await createSupabaseServerClient();
@@ -22,8 +22,8 @@ export default async function ResetPasswordPage() {
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 flex items-center justify-center">
             <Image
-              src="/images/logo-destiny.png"
-              alt="Método Destiny"
+              src="/images/logo-pib.png"
+              alt="PIB — Faria e Castro"
               width={96}
               height={60}
               priority

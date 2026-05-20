@@ -4,13 +4,9 @@ import type { TurmaInput, ProductInput, CouponInput, SellerInput } from "./types
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const COUPON_CODE_RE = /^[A-Z0-9][A-Z0-9_-]{1,48}$/;
+const WHATSAPP_URL_RE = /^https:\/\/(chat\.)?whatsapp\.com\//;
 const ALLOWED_INSTALLMENTS = [1, 2, 3, 6, 12] as const;
-const ALLOWED_PAYMENT_METHODS = [
-  "card",
-  "pix",
-  "klarna",
-  "afterpay_clearpay",
-] as const;
+const ALLOWED_PAYMENT_METHODS = ["card", "pix"] as const;
 
 export class ValidationError extends Error {
   constructor(
@@ -53,6 +49,16 @@ export function validateTurmaInput(input: TurmaInput): void {
   if (!validStatuses.includes(input.status)) {
     throw new ValidationError("status", "Status inválido.");
   }
+
+  if (input.whatsappGroupUrl) {
+    const trimmed = input.whatsappGroupUrl.trim();
+    if (trimmed.length > 0 && !WHATSAPP_URL_RE.test(trimmed)) {
+      throw new ValidationError(
+        "whatsappGroupUrl",
+        "URL inválida. Use o formato https://chat.whatsapp.com/..."
+      );
+    }
+  }
 }
 
 export function validateProductInput(input: ProductInput): void {
@@ -81,8 +87,8 @@ export function validateProductInput(input: ProductInput): void {
     );
   }
 
-  if (!["brl", "usd"].includes(input.currency)) {
-    throw new ValidationError("currency", "Moeda inválida.");
+  if (input.currency !== "brl") {
+    throw new ValidationError("currency", "Moeda inválida. Apenas BRL é suportado.");
   }
 
   if (
@@ -147,17 +153,7 @@ export function validateProductInput(input: ProductInput): void {
   if (invalidPaymentMethods.length > 0) {
     throw new ValidationError(
       "paymentMethods",
-      "Métodos permitidos: cartão, Pix, Klarna ou Afterpay/Clearpay."
-    );
-  }
-
-  if (
-    input.paymentMethods.includes("klarna") &&
-    !input.installmentOptions.some((installment) => installment > 1)
-  ) {
-    throw new ValidationError(
-      "paymentMethods",
-      "Klarna deve ser usado apenas em produtos com parcelamento maior que 1x."
+      "Métodos permitidos: cartão ou Pix."
     );
   }
 }
@@ -197,8 +193,8 @@ export function validateCouponInput(input: CouponInput): void {
     );
   }
 
-  if (!["brl", "usd"].includes(input.currency)) {
-    throw new ValidationError("currency", "Moeda inválida.");
+  if (input.currency !== "brl") {
+    throw new ValidationError("currency", "Moeda inválida. Apenas BRL é suportado.");
   }
 
   if (

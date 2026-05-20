@@ -12,8 +12,8 @@ function formatDate(iso: string): string {
   return formatSaoPauloDateTime(iso);
 }
 
-function formatAmount(cents: number, currency: string): string {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: currency.toUpperCase() }).format(cents / 100);
+function formatAmount(cents: number): string {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cents / 100);
 }
 
 const STATUS_CHIP_MAP: Record<string, "paid" | "pending" | "failed" | "inactive"> = {
@@ -142,7 +142,7 @@ export default async function VendasPage({
                     </td>
                     <td className="py-3 px-4 font-medium" style={{ color: "var(--admin-fg)" }}>
                       <Link href={`/admin/vendas/${order.id}`} className="block">
-                        {formatAmount(order.total_amount_cents, order.currency)}
+                        {formatAmount(order.total_amount_cents)}
                       </Link>
                     </td>
                   </tr>

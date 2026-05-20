@@ -82,31 +82,33 @@ export default function PhoneInput({
     <div className="flex flex-col gap-2" ref={containerRef}>
       <label
         htmlFor={inputId}
-        className="text-white font-inter font-medium text-sm md:text-base"
+        className="font-semibold text-[13px] md:text-sm text-[#2b3674]"
+        style={{ fontFamily: "var(--font-inter-var), Montserrat, sans-serif", letterSpacing: "-0.02em" }}
       >
         {label}
+        {required ? " *" : ""}
       </label>
 
       <div
-        className={`flex items-center gap-3 border rounded-2xl px-4 py-4 min-h-[56px] relative ${
-          error ? "border-red-500" : "border-white"
+        className={`flex items-center gap-3 bg-white border rounded-[10px] px-4 h-[50px] relative ${
+          error ? "border-red-500" : "border-[#e0e5f2] focus-within:border-[#0077ff]"
         }`}
       >
         {/* Country trigger */}
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex cursor-pointer items-center gap-1.5 flex-shrink-0 pr-2 border-r border-white/20"
+          className="flex cursor-pointer items-center gap-1.5 flex-shrink-0 pr-2 border-r border-[#e0e5f2]"
           aria-label="Selecionar país"
         >
           <span className="text-base leading-none">{country.flag}</span>
-          <span className="text-white/60 text-xs font-inter">{country.dial}</span>
+          <span className="text-[#a3aed0] text-xs font-semibold">{country.dial}</span>
           <svg
             width="10"
             height="6"
             viewBox="0 0 10 6"
             fill="none"
-            className={`text-white/50 transition-transform ${open ? "rotate-180" : ""}`}
+            className={`text-[#a3aed0] transition-transform ${open ? "rotate-180" : ""}`}
           >
             <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -128,25 +130,26 @@ export default function PhoneInput({
           placeholder={country.placeholder}
           required={required}
           type="tel"
-          className="bg-transparent text-white placeholder-[#828282] flex-1 outline-none text-sm md:text-base min-h-[24px]"
+          className="bg-transparent text-[#2b3674] placeholder-[#a3aed0] flex-1 outline-none text-sm h-full"
+          style={{ fontFamily: "var(--font-inter-var), Montserrat, sans-serif" }}
         />
 
         {/* Dropdown */}
         {open && (
-          <div className="absolute top-full left-0 mt-2 w-64 bg-[#111] border border-white/20 rounded-2xl overflow-hidden z-50 shadow-xl">
+          <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-[#e0e5f2] rounded-[10px] overflow-hidden z-50 shadow-xl">
             <div className="max-h-64 overflow-y-auto">
               {COUNTRIES.map((c) => (
                 <button
                   key={c.code}
                   type="button"
                   onClick={() => selectCountry(c)}
-                  className={`w-full flex cursor-pointer items-center gap-3 px-4 py-3 text-left hover:bg-white/10 transition-colors ${
-                    c.code === country.code ? "bg-white/5" : ""
+                  className={`w-full flex cursor-pointer items-center gap-3 px-4 py-3 text-left hover:bg-[#f3f5fa] transition-colors ${
+                    c.code === country.code ? "bg-[#f3f5fa]" : ""
                   }`}
                 >
                   <span className="text-base">{c.flag}</span>
-                  <span className="text-white text-sm font-inter flex-1">{c.name}</span>
-                  <span className="text-white/40 text-xs font-inter">{c.dial}</span>
+                  <span className="text-[#2b3674] text-sm font-semibold flex-1" style={{ fontFamily: "var(--font-inter-var), Montserrat, sans-serif" }}>{c.name}</span>
+                  <span className="text-[#a3aed0] text-xs">{c.dial}</span>
                 </button>
               ))}
             </div>
@@ -155,7 +158,7 @@ export default function PhoneInput({
       </div>
 
       {error && (
-        <span className="text-red-400 text-xs mt-0.5">{error}</span>
+        <span className="text-red-500 text-xs mt-0.5" role="alert">{error}</span>
       )}
     </div>
   );

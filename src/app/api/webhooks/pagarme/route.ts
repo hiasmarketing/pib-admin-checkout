@@ -1,6 +1,5 @@
 import { createHash, createHmac, timingSafeEqual } from "crypto";
 import { getPagarmeEnv } from "@/lib/env";
-import { enqueuePipedriveSyncJob } from "@/lib/pipedrive/jobs";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   enqueuePurchaseApprovedWebhook,
@@ -235,22 +234,6 @@ async function handlePaid(params: {
 
   if (!alreadyPaid) {
     try {
-      await enqueuePipedriveSyncJob({
-        type: "order.paid",
-        aggregateType: "order",
-        aggregateId: params.orderId,
-        payload: {
-          pagarmeEventId: params.eventId,
-          pagarmeEventType: params.eventType,
-          pagarmeOrderId: params.pagarmeOrderId,
-          pagarmeChargeId: params.pagarmeChargeId,
-        },
-      });
-    } catch (err) {
-      console.error("Failed to enqueue Pipedrive pagar.me paid sync", err);
-    }
-
-    try {
       await enqueuePurchaseApprovedWebhook({
         orderId: params.orderId,
         order: orderForWebhook,
@@ -298,20 +281,6 @@ async function handleFailed(params: {
   if (updateError) {
     console.error("Failed to mark pagar.me order as failed", updateError);
     return Response.json({ error: "Erro ao atualizar pedido." }, { status: 500 });
-  }
-
-  try {
-    await enqueuePipedriveSyncJob({
-      type: "order.payment_failed",
-      aggregateType: "order",
-      aggregateId: params.orderId,
-      payload: {
-        pagarmeOrderId: params.pagarmeOrderId,
-        pagarmeChargeId: params.pagarmeChargeId,
-      },
-    });
-  } catch (err) {
-    console.error("Failed to enqueue Pipedrive pagar.me failed sync", err);
   }
 
   return null;

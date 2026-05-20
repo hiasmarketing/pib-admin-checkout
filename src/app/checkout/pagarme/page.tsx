@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -22,7 +22,7 @@ import {
   getStoredCheckoutLeadId,
 } from "@/lib/checkout/lead-session";
 
-type ProductPaymentMethod = "card" | "pix" | "klarna" | "afterpay_clearpay";
+type ProductPaymentMethod = "card" | "pix";
 type PagarmeCheckoutMethod = "credit_card" | "pix";
 
 interface ProductOption {
@@ -74,9 +74,6 @@ interface QuoteResult {
     subtotalAmountCents: number;
     discountAmountCents: number;
     totalAmountCents: number;
-    chargedAmountCents: number;
-    chargedCurrency: "brl" | "usd";
-    exchangeRate: number | null;
     installmentBreakdown: InstallmentBreakdown[];
   };
   coupon:
@@ -133,10 +130,6 @@ function formatTurmaDateRange(startsAt: string, endsAt: string | null): string {
   return endDate === startDate ? startDate : `${startDate} - ${endDate}`;
 }
 
-function localizedPath(locale: string, path: `/${string}`) {
-  if (locale === "en") return `/en${path}`;
-  return process.env.NODE_ENV === "development" ? `/pt${path}` : path;
-}
 
 function normalizeDigits(value: string): string {
   return value.replace(/\D/g, "");
@@ -235,14 +228,14 @@ function RefreshIcon({ className = "" }: { className?: string }) {
 function CheckoutFormSkeleton() {
   return (
     <div className="mt-6 animate-pulse space-y-4">
-      <div className="h-16 rounded-full bg-white/10" />
-      <div className="h-16 rounded-2xl bg-white/10" />
-      <div className="h-16 rounded-2xl bg-white/10" />
+      <div className="h-16 rounded-full bg-[#f3f5fa]" />
+      <div className="h-16 rounded-2xl bg-[#f3f5fa]" />
+      <div className="h-16 rounded-2xl bg-[#f3f5fa]" />
       <div className="grid grid-cols-2 gap-3">
-        <div className="h-14 rounded-2xl bg-white/10" />
-        <div className="h-14 rounded-2xl bg-white/10" />
+        <div className="h-14 rounded-2xl bg-[#f3f5fa]" />
+        <div className="h-14 rounded-2xl bg-[#f3f5fa]" />
       </div>
-      <div className="h-14 rounded-full bg-white/10" />
+      <div className="h-14 rounded-full bg-[#f3f5fa]" />
     </div>
   );
 }
@@ -270,10 +263,10 @@ function PagarmeTextInput({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="font-inter text-sm font-medium text-white md:text-base">
+      <label htmlFor={id} className="font-inter text-sm font-medium text-[#2b3674] md:text-base">
         {label}
       </label>
-      <div className="flex min-h-[56px] items-center rounded-2xl border border-white/10 bg-[#1e1e1e] px-6 py-4">
+      <div className="flex min-h-[56px] items-center rounded-2xl border border-[#e0e5f2] bg-white px-6 py-4">
         <input
           id={id}
           name={id}
@@ -284,7 +277,7 @@ function PagarmeTextInput({
           inputMode={inputMode}
           maxLength={maxLength}
           placeholder={placeholder}
-          className="min-h-[24px] w-full bg-transparent font-inter text-sm text-white outline-none placeholder:text-[#828282] md:text-base"
+          className="min-h-[24px] w-full bg-transparent font-inter text-sm text-[#2b3674] outline-none placeholder:text-[#a3aed0] md:text-base"
         />
       </div>
     </div>
@@ -293,7 +286,6 @@ function PagarmeTextInput({
 
 export default function PagarmeCheckoutPage() {
   const t = useTranslations("cartao");
-  const locale = useLocale();
   const router = useRouter();
 
   const [turmaOptions, setTurmaOptions] = useState<TurmaOption[]>([]);
@@ -576,7 +568,7 @@ export default function PagarmeCheckoutPage() {
   async function submitCardToken(cardToken: string) {
     const leadId = await ensureCheckoutLeadId();
     if (!leadId) {
-      router.replace(localizedPath(locale, "/formulario"));
+      router.replace("/formulario");
       return;
     }
 
@@ -613,8 +605,8 @@ export default function PagarmeCheckoutPage() {
         return;
       }
 
-      sessionStorage.setItem("destiny_order_id", data.orderId);
-      router.push(`${localizedPath(locale, "/obrigado")}?orderId=${data.orderId}`);
+      sessionStorage.setItem("pib_order_id", data.orderId);
+      router.push(`${"/obrigado"}?orderId=${data.orderId}`);
     } catch {
       setError(t("paymentError"));
     } finally {
@@ -690,7 +682,7 @@ export default function PagarmeCheckoutPage() {
 
     const leadId = await ensureCheckoutLeadId();
     if (!leadId) {
-      router.replace(localizedPath(locale, "/formulario"));
+      router.replace("/formulario");
       return;
     }
 
@@ -728,7 +720,7 @@ export default function PagarmeCheckoutPage() {
         return;
       }
 
-      sessionStorage.setItem("destiny_order_id", data.orderId);
+      sessionStorage.setItem("pib_order_id", data.orderId);
       setPixPayment({
         orderId: data.orderId,
         qrCode: data.pix.qrCode,
@@ -765,7 +757,7 @@ export default function PagarmeCheckoutPage() {
       void (async () => {
         const leadId = await ensureCheckoutLeadId();
         if (!leadId) {
-          router.replace(localizedPath(locale, "/formulario"));
+          router.replace("/formulario");
           return;
         }
 
@@ -826,8 +818,8 @@ export default function PagarmeCheckoutPage() {
         if (cancelled || !response.ok) return;
 
         if (data?.status === "paid") {
-          sessionStorage.setItem("destiny_order_id", pixOrderId);
-          router.push(`${localizedPath(locale, "/obrigado")}?orderId=${pixOrderId}`);
+          sessionStorage.setItem("pib_order_id", pixOrderId);
+          router.push(`${"/obrigado"}?orderId=${pixOrderId}`);
         } else if (data?.status === "expired") {
           setPixPayment((current) =>
             current?.orderId === pixOrderId
@@ -849,13 +841,13 @@ export default function PagarmeCheckoutPage() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [isPixExpired, locale, pixPayment, router, t]);
+  }, [isPixExpired, pixPayment, router, t]);
 
   const badgeLabel =
     quote?.turma.name ??
     (turmaOptions.length === 1 ? turmaOptions[0].name : null) ??
     null;
-  const totalAmountCents = quote?.pricing.chargedAmountCents ?? 0;
+  const totalAmountCents = quote?.pricing.totalAmountCents ?? 0;
 
   return (
     <CheckoutLayout>
@@ -866,32 +858,32 @@ export default function PagarmeCheckoutPage() {
       ) : (
         <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
           <div className="mb-6">
-            <h2 className="text-white font-sora font-bold text-lg text-center mb-4">
+            <h2 className="text-[#2b3674] font-sora font-bold text-lg text-center mb-4">
               Selecione a sua turma
             </h2>
             {turmaOptions.length > 1 ? (
-              <div className="min-h-[56px] rounded-2xl border border-brand/40 bg-[#1e1e1e] px-6 py-4">
+              <div className="min-h-[56px] rounded-2xl border border-[#0077ff]/40 bg-white px-6 py-4">
                 <select
                   value={selectedTurmaId ?? ""}
                   onChange={(event) => handleTurmaChange(event.target.value)}
-                  className="w-full bg-transparent font-inter text-sm text-white outline-none md:text-base"
+                  className="w-full bg-transparent font-inter text-sm text-[#2b3674] outline-none md:text-base"
                 >
                   {turmaOptions.map((turma) => (
-                    <option key={turma.id} value={turma.id} className="bg-[#1e1e1e]">
+                    <option key={turma.id} value={turma.id} className="bg-white">
                       {turma.name}
                     </option>
                   ))}
                 </select>
               </div>
             ) : (
-              <div className="border border-brand/40 rounded-full w-full px-8 py-5 text-center">
+              <div className="border border-[#0077ff]/40 rounded-full w-full px-8 py-5 text-center">
                 {badgeLabel && (
-                  <p className="text-white font-sora font-bold text-sm md:text-base">
+                  <p className="text-[#2b3674] font-sora font-bold text-sm md:text-base">
                     {badgeLabel}
                   </p>
                 )}
                 {selectedTurma?.startsAt && (
-                  <p className="text-white/60 font-inter text-sm mt-0.5">
+                  <p className="text-[#a3aed0] font-inter text-sm mt-0.5">
                     {formatTurmaDateRange(selectedTurma.startsAt, selectedTurma.endsAt)}
                   </p>
                 )}
@@ -901,17 +893,17 @@ export default function PagarmeCheckoutPage() {
 
           {selectedTurma && selectedTurma.products.length > 1 && (
             <div className="flex flex-col gap-2">
-              <label className="font-inter text-sm font-medium text-white md:text-base">
+              <label className="font-inter text-sm font-medium text-[#2b3674] md:text-base">
                 Selecione o ingresso
               </label>
-              <div className="min-h-[56px] rounded-2xl border border-white/10 bg-[#1e1e1e] px-6 py-4">
+              <div className="min-h-[56px] rounded-2xl border border-[#e0e5f2] bg-white px-6 py-4">
                 <select
                   value={selectedProductId ?? ""}
                   onChange={(event) => handleProductChange(event.target.value)}
-                  className="w-full bg-transparent font-inter text-sm text-white outline-none md:text-base"
+                  className="w-full bg-transparent font-inter text-sm text-[#2b3674] outline-none md:text-base"
                 >
                   {selectedTurma.products.map((product) => (
-                    <option key={product.id} value={product.id} className="bg-[#1e1e1e]">
+                    <option key={product.id} value={product.id} className="bg-white">
                       {product.name}
                     </option>
                   ))}
@@ -922,7 +914,7 @@ export default function PagarmeCheckoutPage() {
 
           {availableMethods.length > 1 && (
             <div className="flex flex-col items-center gap-4">
-              <p className="font-inter text-sm font-medium text-white md:text-base">
+              <p className="font-inter text-sm font-medium text-[#2b3674] md:text-base">
                 {t("paymentMethod")}
               </p>
               <div className="grid w-full grid-cols-2 gap-3">
@@ -931,8 +923,8 @@ export default function PagarmeCheckoutPage() {
                   onClick={() => handleMethodChange("credit_card")}
                   className={`flex min-h-[52px] cursor-pointer items-center justify-center gap-3 rounded-full border px-5 font-inter text-sm font-semibold transition-all ${
                     selectedMethod === "credit_card"
-                      ? "border-brand text-white shadow-[0_0_0_1px_rgba(243,24,255,0.55)]"
-                      : "border-white/10 bg-white/[0.04] text-white/75 hover:border-brand/60"
+                      ? "border-[#0077ff] text-[#2b3674] shadow-[0_0_0_1px_rgba(0,119,255,0.55)]"
+                      : "border-[#e0e5f2] bg-white text-[#a3aed0] hover:border-[#0077ff]/60"
                   }`}
                   aria-pressed={selectedMethod === "credit_card"}
                 >
@@ -944,8 +936,8 @@ export default function PagarmeCheckoutPage() {
                   onClick={() => handleMethodChange("pix")}
                   className={`flex min-h-[52px] cursor-pointer items-center justify-center gap-3 rounded-full border px-5 font-inter text-sm font-semibold transition-all ${
                     selectedMethod === "pix"
-                      ? "border-brand text-white shadow-[0_0_0_1px_rgba(243,24,255,0.55)]"
-                      : "border-white/10 bg-white/[0.04] text-white/75 hover:border-brand/60"
+                      ? "border-[#0077ff] text-[#2b3674] shadow-[0_0_0_1px_rgba(0,119,255,0.55)]"
+                      : "border-[#e0e5f2] bg-white text-[#a3aed0] hover:border-[#0077ff]/60"
                   }`}
                   aria-pressed={selectedMethod === "pix"}
                 >
@@ -992,18 +984,18 @@ export default function PagarmeCheckoutPage() {
           )}
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="quantity" className="font-inter text-sm font-medium text-white md:text-base">
+            <label htmlFor="quantity" className="font-inter text-sm font-medium text-[#2b3674] md:text-base">
               {t("quantity")}
             </label>
-            <div className="min-h-[56px] rounded-2xl border border-white/10 bg-[#1e1e1e] px-6 py-4">
+            <div className="min-h-[56px] rounded-2xl border border-[#e0e5f2] bg-white px-6 py-4">
               <select
                 id="quantity"
                 value={String(quantity)}
                 onChange={(event) => handleQuantityChange(Number(event.target.value))}
-                className="w-full bg-transparent font-inter text-sm text-white outline-none md:text-base"
+                className="w-full bg-transparent font-inter text-sm text-[#2b3674] outline-none md:text-base"
               >
                 {Array.from({ length: Math.max(1, maxQuantity) }, (_, index) => index + 1).map((n) => (
-                  <option key={n} value={String(n)} className="bg-[#1e1e1e]">
+                  <option key={n} value={String(n)} className="bg-white">
                     {n} {n === 1 ? t("ticketSingular") : t("ticketPlural")}
                   </option>
                 ))}
@@ -1017,7 +1009,7 @@ export default function PagarmeCheckoutPage() {
               className="flex flex-col gap-5"
             >
               <div className="flex flex-col gap-2">
-                <span className="font-inter text-sm font-medium text-white md:text-base">
+                <span className="font-inter text-sm font-medium text-[#2b3674] md:text-base">
                   {t("installments")}
                 </span>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1028,8 +1020,8 @@ export default function PagarmeCheckoutPage() {
                       onClick={() => handleInstallmentChange(item.installments)}
                       className={`min-h-[64px] cursor-pointer rounded-2xl border px-4 py-3 text-left font-inter text-sm transition-all ${
                         installmentCount === item.installments
-                          ? "border-brand text-brand"
-                          : "border-white/20 text-white/70 hover:border-brand/60"
+                          ? "border-[#0077ff] text-brand"
+                          : "border-[#e0e5f2] text-[#a3aed0] hover:border-[#0077ff]/60"
                       }`}
                     >
                       {`${item.installments}x ${formatCurrency(item.perInstallmentCents, "brl")}`}
@@ -1119,7 +1111,7 @@ export default function PagarmeCheckoutPage() {
                   className="h-5 w-5 flex-shrink-0 accent-brand"
                   id="terms-card"
                 />
-                <span className="font-inter text-sm text-white/80">
+                <span className="font-inter text-sm text-[#2b3674]/80">
                   {t("termsPrefix")}
                   <button type="button" className="cursor-pointer text-brand underline underline-offset-2">
                     {t("termsLink")}
@@ -1128,15 +1120,15 @@ export default function PagarmeCheckoutPage() {
               </label>
 
               {selectedInstallment && (
-                <div className="border-t border-white/10 pt-4">
-                  <div className="flex justify-between font-inter font-semibold text-white">
+                <div className="border-t border-[#e0e5f2] pt-4">
+                  <div className="flex justify-between font-inter font-semibold text-[#2b3674]">
                     <span>Total</span>
                     <span>
                       {formatCurrency(selectedInstallment.totalCents, "brl")}
                     </span>
                   </div>
                   {selectedInstallment.installments > 1 && (
-                    <div className="mt-1 flex justify-between font-inter text-xs text-white/60">
+                    <div className="mt-1 flex justify-between font-inter text-xs text-[#a3aed0]">
                       <span>{selectedInstallment.installments}x</span>
                       <span>
                         {formatCurrency(selectedInstallment.perInstallmentCents, "brl")}
@@ -1186,7 +1178,7 @@ export default function PagarmeCheckoutPage() {
                   className="h-5 w-5 flex-shrink-0 accent-brand"
                   id="terms-pix"
                 />
-                <span className="font-inter text-sm text-white/80">
+                <span className="font-inter text-sm text-[#2b3674]/80">
                   {t("termsPrefix")}
                   <button type="button" className="cursor-pointer text-brand underline underline-offset-2">
                     {t("termsLink")}
@@ -1195,7 +1187,7 @@ export default function PagarmeCheckoutPage() {
               </label>
 
               {pixPayment ? (
-                <div className="flex flex-col items-center gap-5 rounded-2xl border border-white/10 bg-black/40 p-5 text-center">
+                <div className="flex flex-col items-center gap-5 rounded-2xl border border-[#e0e5f2] bg-[#f3f5fa] p-5 text-center">
                   {isPixExpired ? (
                     <Button
                       type="button"
@@ -1217,7 +1209,7 @@ export default function PagarmeCheckoutPage() {
                       className="h-56 w-56 bg-white p-3"
                     />
                   ) : (
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 font-inter text-sm text-white/70">
+                    <div className="rounded-2xl border border-[#e0e5f2] bg-[#f3f5fa] p-4 font-inter text-sm text-[#a3aed0]">
                       QR Code indisponível. Use o copia e cola abaixo.
                     </div>
                   )}
@@ -1240,7 +1232,7 @@ export default function PagarmeCheckoutPage() {
                         <CopyIcon className="h-6 w-6 flex-shrink-0 text-brand" />
                       </button>
 
-                      <div className="font-sora text-2xl font-extrabold text-white">
+                      <div className="font-sora text-2xl font-extrabold text-[#2b3674]">
                         <p>{t("pixTimeLabel")}</p>
                         <p>{formatCountdown(pixSecondsRemaining)}</p>
                       </div>
@@ -1248,8 +1240,8 @@ export default function PagarmeCheckoutPage() {
                   )}
                 </div>
               ) : (
-                <div className="border-t border-white/10 pt-4">
-                  <div className="flex justify-between font-inter font-semibold text-white">
+                <div className="border-t border-[#e0e5f2] pt-4">
+                  <div className="flex justify-between font-inter font-semibold text-[#2b3674]">
                     <span>Total</span>
                     <span>{formatCurrency(totalAmountCents, "brl")}</span>
                   </div>

@@ -89,9 +89,9 @@ export default async function TurmaDetailPage({
                         )}
                       </div>
                       <div className="mt-1 text-xs" style={{ color: "var(--admin-muted)" }}>
-                        {new Intl.NumberFormat(product.currency === "usd" ? "en-US" : "pt-BR", {
+                        {new Intl.NumberFormat("pt-BR", {
                           style: "currency",
-                          currency: product.currency.toUpperCase(),
+                          currency: "BRL",
                         }).format(product.unitAmountCents / 100)}{" "}
                         · até {product.maxQuantity} ingresso(s) · parcelas: {product.installmentOptions.join(", ")}x
                       </div>

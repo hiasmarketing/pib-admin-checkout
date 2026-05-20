@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Admin — Método Destiny",
+  title: "Admin — PIB",
 };
 
 export const viewport: Viewport = {

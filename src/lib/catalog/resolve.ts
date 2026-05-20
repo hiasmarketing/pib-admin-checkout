@@ -14,11 +14,7 @@ import type {
 function normalizePaymentMethods(value: unknown): PaymentMethodType[] {
   const methods = Array.isArray(value) ? value : ["card"];
   const normalized = methods.filter(
-    (method): method is PaymentMethodType =>
-      method === "card" ||
-      method === "pix" ||
-      method === "klarna" ||
-      method === "afterpay_clearpay"
+    (method): method is PaymentMethodType => method === "card" || method === "pix"
   );
 
   return normalized.length > 0 ? normalized : ["card"];
@@ -83,7 +79,7 @@ export async function listPublicCheckoutOptions(): Promise<
         name: p.name as string,
         description: (p.description as string | null) ?? null,
         unitAmountCents: p.unit_amount_cents as number,
-        currency: ((p.currency as string) === "usd" ? "usd" : "brl") as "brl" | "usd",
+        currency: "brl",
         maxQuantity: p.max_quantity as number,
         installmentOptions: p.installment_options as InstallmentCount[],
         isDefault: p.is_default as boolean,
@@ -171,7 +167,7 @@ export async function resolveCatalogProduct(
       slug: productRow.slug as string,
       description: (productRow.description as string | null) ?? null,
       unitAmountCents: productRow.unit_amount_cents as number,
-      currency: ((productRow.currency as string) === "usd" ? "usd" : "brl") as "brl" | "usd",
+      currency: "brl",
       maxQuantity: productRow.max_quantity as number,
       active: productRow.active as boolean,
       installmentOptions: productRow.installment_options as InstallmentCount[],
@@ -295,7 +291,7 @@ export interface CatalogPricingResult {
   subtotalAmountCents: number;
   discountAmountCents: number;
   totalAmountCents: number;
-  currency: "brl" | "usd";
+  currency: "brl";
 }
 
 export function calculateCatalogOrderAmount(

@@ -1,6 +1,6 @@
 export type TurmaStatus = "draft" | "active" | "inactive" | "archived";
 export type AdminRole = "admin" | "operator";
-export type Currency = "brl" | "usd";
+export type Currency = "brl";
 export type InstallmentCount = 1 | 2 | 3 | 6 | 12;
 export type CouponDiscountType = "percent" | "fixed_amount";
 
@@ -11,6 +11,7 @@ export interface TurmaDTO {
   startsAt: string | null;
   endsAt: string | null;
   location: string | null;
+  whatsappGroupUrl: string | null;
   status: TurmaStatus;
   externalMetadata: Record<string, unknown>;
   createdAt: string;
@@ -23,6 +24,7 @@ export interface TurmaInput {
   startsAt?: string | null;
   endsAt?: string | null;
   location?: string | null;
+  whatsappGroupUrl?: string | null;
   status: TurmaStatus;
   externalMetadata?: Record<string, unknown>;
 }
@@ -133,7 +135,7 @@ export interface SellerInput {
   externalMetadata?: Record<string, unknown>;
 }
 
-export type PaymentMethodType = "card" | "pix" | "klarna" | "afterpay_clearpay";
+export type PaymentMethodType = "card" | "pix";
 
 export interface PublicCheckoutProductOption {
   id: string;

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireOperator } from "@/lib/admin/auth";
 import { getOrder } from "@/lib/admin/orders";
-import { getStripeFailureReason } from "@/lib/payments/failures";
+import { getPagarmeFailureReason } from "@/lib/payments/failures";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminCard } from "@/components/admin/AdminCard";
 import { AdminButton } from "@/components/admin/AdminButton";
@@ -21,8 +21,6 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   card: "Cartão",
   credit_card: "Cartão",
   pix: "Pix",
-  klarna: "Klarna",
-  afterpay_clearpay: "Afterpay/Clearpay",
 };
 
 function formatPaymentMethod(method: string | null | undefined): string {
@@ -64,9 +62,9 @@ export default async function VendaDetailPage({
   const lead = order.lead;
   const failureReason =
     order.status === "payment_failed"
-      ? getStripeFailureReason({
-          stripeDeclineCode: order.stripe_decline_code,
-          stripeFailureCode: order.stripe_failure_code,
+      ? getPagarmeFailureReason({
+          pagarmeDeclineCode: order.pagarme_decline_code,
+          pagarmeFailureMessage: order.pagarme_failure_message,
         })
       : null;
 
@@ -155,12 +153,12 @@ export default async function VendaDetailPage({
       {order.status === "payment_failed" && (
         <AdminCard className="mb-4">
           <div className="text-sm font-medium mb-4" style={{ color: "var(--admin-fg)" }}>
-            Falha Stripe
+            Falha Pagar.me
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <InfoField label="Motivo" value={failureReason} />
-            <InfoField label="stripe_decline_code" value={order.stripe_decline_code} />
-            <InfoField label="stripe_failure_code" value={order.stripe_failure_code} />
+            <InfoField label="pagarme_decline_code" value={order.pagarme_decline_code} />
+            <InfoField label="pagarme_failure_message" value={order.pagarme_failure_message} />
           </div>
         </AdminCard>
       )}

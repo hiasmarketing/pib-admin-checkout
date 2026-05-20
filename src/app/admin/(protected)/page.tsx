@@ -18,10 +18,10 @@ const QUICK_LINKS = [
   { href: "/admin/webhooks", label: "Webhooks", description: "Configurar integrações externas" },
 ];
 
-function formatUSD(cents: number): string {
+function formatBRL(cents: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
-    currency: "USD",
+    currency: "BRL",
   }).format(cents / 100);
 }
 
@@ -51,7 +51,7 @@ export default async function AdminDashboardPage({
     <div>
       <AdminPageHeader
         title="Dashboard"
-        description="Painel de controle do Método Destiny"
+        description="Painel de controle do PIB"
         action={<PeriodSelector />}
       />
 
@@ -69,7 +69,7 @@ export default async function AdminDashboardPage({
         />
         <MetricCard
           label="Receita"
-          value={formatUSD(orderMetrics.revenue)}
+          value={formatBRL(orderMetrics.revenue)}
           sublabel={periodLabel}
         />
         <MetricCard

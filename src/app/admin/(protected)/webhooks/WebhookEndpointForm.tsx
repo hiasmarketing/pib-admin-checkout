@@ -110,6 +110,39 @@ export function WebhookEndpointForm({ defaultValues, action, submitLabel = "Salv
         <span className="text-sm" style={{ color: "var(--admin-fg)" }}>Ativo</span>
       </label>
 
+      <details
+        className="rounded-lg border px-3 py-2 text-xs"
+        style={{ borderColor: "var(--admin-border)", color: "var(--admin-muted)" }}
+      >
+        <summary className="cursor-pointer font-medium" style={{ color: "var(--admin-fg)" }}>
+          Headers e payload enviados
+        </summary>
+        <div className="mt-2 space-y-2">
+          <p>
+            Cada delivery enviada para esta URL inclui:
+          </p>
+          <pre
+            className="rounded p-2 overflow-x-auto"
+            style={{ background: "var(--admin-input-bg)", color: "var(--admin-fg)" }}
+          >
+{`Content-Type: application/json
+X-Pib-Event: purchase.approved
+X-Pib-Signature: sha256=<hmac>
+
+{
+  "eventId": "<uuid>",
+  "type": "purchase.approved",
+  "occurredAt": "2026-05-20T12:00:00.000Z",
+  "data": { /* payload do pedido aprovado */ }
+}`}
+          </pre>
+          <p>
+            <strong>X-Pib-Signature</strong> só aparece se este endpoint tiver segredo configurado. Use o
+            segredo para verificar a assinatura HMAC-SHA256 do corpo recebido.
+          </p>
+        </div>
+      </details>
+
       <p
         role="alert"
         aria-live="polite"

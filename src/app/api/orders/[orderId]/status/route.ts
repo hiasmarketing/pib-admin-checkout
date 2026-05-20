@@ -1,6 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getPagarmeEnv } from "@/lib/env";
-import { enqueuePipedriveSyncJob } from "@/lib/pipedrive/jobs";
 import {
   enqueuePurchaseApprovedWebhook,
   PURCHASE_APPROVED_ORDER_SELECT,
@@ -69,7 +68,7 @@ async function getPagarmeOrder(pagarmeOrderId: string) {
         "base64"
       )}`,
       "Content-Type": "application/json",
-      "User-Agent": "admin-destiny/1.0",
+      "User-Agent": "pib-checkout/1.0",
     },
     cache: "no-store",
   });
@@ -134,21 +133,6 @@ async function reconcilePagarmeStatus(
     }
 
     if (updatedOrder) {
-      try {
-        await enqueuePipedriveSyncJob({
-          type: "order.paid",
-          aggregateType: "order",
-          aggregateId: order.id,
-          payload: {
-            source: "pagarme-status-poll",
-            pagarmeOrderId: order.pagarme_order_id,
-            pagarmeChargeId,
-          },
-        });
-      } catch (err) {
-        console.error("Failed to enqueue Pipedrive pagar.me poll sync", err);
-      }
-
       try {
         await enqueuePurchaseApprovedWebhook({
           orderId: order.id,

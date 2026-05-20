@@ -12,6 +12,7 @@ function mapRow(row: Record<string, unknown>): TurmaDTO {
     startsAt: (row.starts_at as string | null) ?? null,
     endsAt: (row.ends_at as string | null) ?? null,
     location: (row.location as string | null) ?? null,
+    whatsappGroupUrl: (row.whatsapp_group_url as string | null) ?? null,
     status: row.status as TurmaDTO["status"],
     externalMetadata: (row.external_metadata as Record<string, unknown>) ?? {},
     createdAt: row.created_at as string,
@@ -53,6 +54,7 @@ export async function createTurma(input: TurmaInput): Promise<TurmaDTO> {
       starts_at: input.startsAt ?? null,
       ends_at: input.endsAt ?? null,
       location: input.location?.trim() ?? null,
+      whatsapp_group_url: input.whatsappGroupUrl?.trim() || null,
       status: input.status,
       external_metadata: input.externalMetadata ?? {},
     })
@@ -83,6 +85,7 @@ export async function updateTurma(
       starts_at: input.startsAt ?? null,
       ends_at: input.endsAt ?? null,
       location: input.location?.trim() ?? null,
+      whatsapp_group_url: input.whatsappGroupUrl?.trim() || null,
       status: input.status,
       external_metadata: input.externalMetadata ?? {},
     })

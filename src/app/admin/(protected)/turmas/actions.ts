@@ -14,6 +14,7 @@ function extractTurmaInput(data: FormData): TurmaInput {
     startsAt: (data.get("startsAt") as string) || null,
     endsAt: (data.get("endsAt") as string) || null,
     location: (data.get("location") as string) || null,
+    whatsappGroupUrl: (data.get("whatsappGroupUrl") as string) || null,
     status: (data.get("status") as TurmaInput["status"]) ?? "draft",
   };
 }

@@ -16,7 +16,7 @@ export default async function TurmasPage() {
     <div>
       <AdminPageHeader
         title="Turmas"
-        description="Gerencie as turmas do Método Destiny"
+        description="Gerencie as turmas do PIB"
         action={<AdminButton href="/admin/turmas/new">+ Nova turma</AdminButton>}
       />
 
@@ -58,8 +58,22 @@ export default async function TurmasPage() {
                       {turma.startsAt && ` · ${formatSaoPauloDate(turma.startsAt)}`}
                     </div>
                   </div>
-                  <div className="text-xs flex-shrink-0" style={{ color: "var(--admin-muted)" }}>
-                    Editar →
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span
+                      title={turma.whatsappGroupUrl ? "WhatsApp configurado" : "Sem WhatsApp"}
+                      aria-label={turma.whatsappGroupUrl ? "WhatsApp configurado" : "WhatsApp não configurado"}
+                      className="text-xs"
+                      style={{
+                        color: turma.whatsappGroupUrl
+                          ? "#25D366"
+                          : "var(--admin-muted)",
+                      }}
+                    >
+                      {turma.whatsappGroupUrl ? "● WhatsApp" : "○ WhatsApp"}
+                    </span>
+                    <div className="text-xs" style={{ color: "var(--admin-muted)" }}>
+                      Editar →
+                    </div>
                   </div>
                 </div>
               </div>
